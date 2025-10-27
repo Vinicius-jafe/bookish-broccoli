@@ -7,7 +7,7 @@ import { Card } from "../components/ui/card";
 import { Textarea } from "../components/ui/textarea";
 import { toast } from "../hooks/use-toast";
 import { SiteShell } from "../components/SiteShell";
-import { isAdmin, loginAdmin, logoutAdmin, loadPackages, upsertPackage, deletePackage } from "../services/api";
+import { isAdmin, loginAdmin, logoutAdmin, loadPackages, upsertPackage, deletePackage } from "../api";
 
 function PackageForm({ initial, onCancel, onSaved }) {
   const [form, setForm] = useState(

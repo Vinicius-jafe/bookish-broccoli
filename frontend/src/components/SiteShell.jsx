@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
@@ -7,7 +7,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { AspectRatio } from "../components/ui/aspect-ratio";
 import { Separator } from "../components/ui/separator";
 import { Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
-import { loadPackages, loadTestimonials } from "../mock";
+import { loadPackages as fetchPackages } from "../api"; // API real
 
 export function NavBar() {
   const nav = useNavigate();
@@ -103,8 +103,19 @@ export function PackageCard({ pkg }) {
 }
 
 function Row({ title, filter }) {
-  const pkgs = loadPackages().filter(filter);
+  const [pkgs, setPkgs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPackages()
+      .then(data => setPkgs(data.filter(filter)))
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
+  }, [filter]);
+
+  if (loading) return <div className="text-center py-6">Carregando...</div>;
   if (!pkgs.length) return null;
+
   return (
     <section className="max-w-6xl mx-auto px-4 mt-12">
       <div className="flex items-end justify-between mb-4">
@@ -127,8 +138,18 @@ function Row({ title, filter }) {
 }
 
 export function Home() {
-  const testimonials = loadTestimonials();
-  const featured = loadPackages().filter(p => p.featuredHome);
+  const [packages, setPackages] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPackages()
+      .then(data => setPackages(data))
+      .catch(err => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const featured = packages.filter(p => p.featuredHome);
+
   return (
     <SiteShell>
       <section className="bg-gradient-to-b from-muted to-background border-b">
@@ -171,28 +192,6 @@ export function Home() {
       <Row title="Roteiros mais procurados pelo Nordeste" filter={(p)=>p.type==="nacional" && p.region==="Nordeste"} />
       <Row title="Roteiros mais procurados pelo Brasil" filter={(p)=>p.type==="nacional"} />
       <Row title="Roteiros mais procurados Internacional" filter={(p)=>p.type==="internacional"} />
-
-      <section className="max-w-6xl mx-auto px-4 mt-16">
-        <h2 className="text-2xl font-semibold">Depoimentos de nossos clientes</h2>
-        <p className="text-muted-foreground mt-1">A opinião dos nossos clientes é o que mais importa para nós.</p>
-        <Carousel className="mt-6">
-          <CarouselContent>
-            {testimonials.map(t => (
-              <CarouselItem key={t.id} className="basis-full md:basis-1/3 pr-4">
-                <Card className="overflow-hidden">
-                  <AspectRatio ratio={16/9}><img src={t.image} alt={t.name} className="w-full h-full object-cover" /></AspectRatio>
-                  <CardContent className="p-4">
-                    <div className="text-sm">“{t.text}”</div>
-                    <div className="text-xs text-muted-foreground mt-1">{t.name}</div>
-                  </CardContent>
-                </Card>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
-      </section>
 
       <section className="max-w-6xl mx-auto px-4 mt-16">
         <div className="bg-card border rounded-lg p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
