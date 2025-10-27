@@ -7,10 +7,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// rotas
+// Rotas
 app.use("/api/auth", authRoutes);
 app.use("/api/packages", packagesRoutes);
 
-// servidor local
-const PORT = 4000;
-app.listen(PORT, () => console.log(`✅ Servidor rodando em http://localhost:${PORT}`));
+// Porta dinâmica (Render) ou 4000 localmente
+const PORT = process.env.PORT || 4000;
+
+app.listen(PORT, () => {
+  console.log(`✅ Servidor rodando em http://localhost:${PORT}`);
+});
