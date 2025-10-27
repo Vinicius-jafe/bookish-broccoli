@@ -48,3 +48,8 @@ export async function deletePackage(id) {
   if (!res.ok) throw new Error("Erro ao excluir pacote");
   return await res.json();
 }
+export const months = [
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+];
+
