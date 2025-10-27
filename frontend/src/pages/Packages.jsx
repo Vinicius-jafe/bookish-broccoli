@@ -1,17 +1,29 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "../components/ui/select";
 import { Slider } from "../components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import { Card } from "../components/ui/card";
 import { Textarea } from "../components/ui/textarea";
 import { toast } from "../hooks/use-toast";
 import { AspectRatio } from "../components/ui/aspect-ratio";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../components/ui/carousel";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious
+} from "../components/ui/carousel";
 import { SiteShell, PackageCard } from "../components/SiteShell";
-import { loadPackages, months as monthList } from "../mock";
+import { loadPackages, months as monthList } from "../api"; // <- alterado aqui
 
 // === HOOK para ler query params ===
 function useQuery() {
@@ -54,18 +66,34 @@ export function PackagesList() {
   const [duration, setDuration] = useState([1, 10]);
   const [month, setMonth] = useState("todas");
 
-  const pkgs = loadPackages();
+  const [pkgs, setPkgs] = useState([]); // estado para pacotes
+
+  useEffect(() => {
+    async function fetchPackages() {
+      try {
+        const data = await loadPackages();
+        setPkgs(data);
+      } catch (err) {
+        console.error("Erro ao carregar pacotes:", err);
+        toast({ title: "Erro ao carregar pacotes" });
+      }
+    }
+    fetchPackages();
+  }, []);
+
   const regions = useMemo(() => Array.from(new Set(pkgs.map(p => p.region))), [pkgs]);
 
-  const filtered = pkgs.filter(p => {
-    if (type !== "todos" && p.type !== type) return false;
-    if (region !== "todas" && p.region !== region) return false;
-    if (month !== "todas" && !(p.months || []).includes(month)) return false;
-    const dOk = p.duration >= duration[0] && p.duration <= duration[1];
-    if (!dOk) return false;
-    const tOk = `${p.title} ${p.destination}`.toLowerCase().includes(term.toLowerCase());
-    return tOk;
-  });
+  const filtered = useMemo(() => {
+    return pkgs.filter(p => {
+      if (type !== "todos" && p.type !== type) return false;
+      if (region !== "todas" && p.region !== region) return false;
+      if (month !== "todas" && !(p.months || []).includes(month)) return false;
+      const dOk = p.duration >= duration[0] && p.duration <= duration[1];
+      if (!dOk) return false;
+      const tOk = `${p.title} ${p.destination}`.toLowerCase().includes(term.toLowerCase());
+      return tOk;
+    });
+  }, [pkgs, type, region, month, duration, term]);
 
   return (
     <SiteShell>
@@ -101,7 +129,7 @@ export function PackagesList() {
 
             <div className="mt-4 text-sm font-medium">Duração (dias)</div>
             <div className="px-1">
-              <Slider value={duration} onValueChange={setDuration} min={1} max={10} step={1} />
+              <Slider value={duration} onValueChange={setDuration} min={1} max={30} step={1} />
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>{duration[0]}d</span><span>{duration[1]}d</span>
@@ -154,7 +182,34 @@ export function PackagesList() {
 export function PackageDetail() {
   const { slug } = useParams();
   const nav = useNavigate();
-  const pkg = loadPackages().find(p => p.slug === slug);
+  const [pkg, setPkg] = useState(null);
+
+  useEffect(() => {
+    async function fetchPackage() {
+      try {
+        const all = await loadPackages();
+        const found = all.find(p => p.slug === slug);
+        if (!found) {
+          toast({ title: "Pacote não encontrado" });
+        }
+        setPkg(found || null);
+      } catch (err) {
+        console.error("Erro ao buscar pacote:", err);
+        toast({ title: "Erro ao buscar pacote" });
+      }
+    }
+    fetchPackage();
+  }, [slug]);
+
+  if (pkg === null) {
+    return (
+      <SiteShell>
+        <div className="max-w-4xl mx-auto px-4 py-12 text-center">
+          <h1 className="text-2xl font-semibold">Carregando...</h1>
+        </div>
+      </SiteShell>
+    );
+  }
 
   if (!pkg) {
     return (
