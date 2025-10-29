@@ -12,13 +12,14 @@ function slugify(text) {
     .replace(/[^a-z0-9-]/g, ""); // remove caracteres especiais
 }
 
-// Inicializa o banco e cria tabela se não existir
+// Inicializa o banco e cria/atualiza a tabela se necessário
 async function initDb() {
   const db = await openDb();
+
+  // Cria tabela se não existir
   await db.exec(`
     CREATE TABLE IF NOT EXISTS packages (
       id TEXT PRIMARY KEY,
-      slug TEXT,
       title TEXT,
       type TEXT,
       region TEXT,
@@ -29,6 +30,18 @@ async function initDb() {
       longDescription TEXT
     )
   `);
+
+  // Tenta adicionar a coluna 'slug' se ela não existir
+  try {
+    const cols = await db.all("PRAGMA table_info(packages)");
+    const hasSlug = cols.some(c => c.name === "slug");
+    if (!hasSlug) {
+      await db.exec("ALTER TABLE packages ADD COLUMN slug TEXT;");
+      console.log("🟢 Coluna 'slug' adicionada à tabela packages");
+    }
+  } catch (err) {
+    console.error("Erro ao tentar adicionar coluna slug:", err);
+  }
 }
 initDb();
 
@@ -50,7 +63,6 @@ router.post("/", async (req, res) => {
     const pkg = req.body;
     const db = await openDb();
 
-    // Gera slug automaticamente
     const slug = pkg.slug || slugify(pkg.title || "");
 
     await db.run(
