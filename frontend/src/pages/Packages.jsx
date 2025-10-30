@@ -12,7 +12,6 @@ import {
 import { Slider } from "../components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import { Card } from "../components/ui/card";
-import { Textarea } from "../components/ui/textarea";
 import { toast } from "../hooks/use-toast";
 import { AspectRatio } from "../components/ui/aspect-ratio";
 import {
@@ -22,8 +21,10 @@ import {
   CarouselNext,
   CarouselPrevious
 } from "../components/ui/carousel";
-import { SiteShell, PackageCard } from "../components/SiteShell";
-import { loadPackages, months as monthList } from "../api"; // <- alterado aqui
+import { SiteShell, PackageCard } from "../components/SiteShell"; 
+// Importações de API e Meses ajustadas:
+import { loadPackages, loadPackageBySlug } from "../api";
+import { months as monthList } from "../constants/months"; // Assumindo que você moveu os meses para um arquivo separado
 
 // === HOOK para ler query params ===
 function useQuery() {
@@ -81,13 +82,14 @@ export function PackagesList() {
     fetchPackages();
   }, []);
 
-  const regions = useMemo(() => Array.from(new Set(pkgs.map(p => p.region))), [pkgs]);
+  const regions = useMemo(() => Array.from(new Set(pkgs.map(p => p.region))).filter(Boolean), [pkgs]);
 
   const filtered = useMemo(() => {
     return pkgs.filter(p => {
       if (type !== "todos" && p.type !== type) return false;
       if (region !== "todas" && p.region !== region) return false;
-      if (month !== "todas" && !(p.months || []).includes(month)) return false;
+      // Este filtro de mês agora funciona, pois o backend está retornando p.months como array
+      if (month !== "todas" && !(p.months || []).includes(month)) return false; 
       const dOk = p.duration >= duration[0] && p.duration <= duration[1];
       if (!dOk) return false;
       const tOk = `${p.title} ${p.destination}`.toLowerCase().includes(term.toLowerCase());
@@ -182,20 +184,23 @@ export function PackagesList() {
 export function PackageDetail() {
   const { slug } = useParams();
   const nav = useNavigate();
-  const [pkg, setPkg] = useState(null);
+  // setPkg para null (carregando) e false (não encontrado)
+  const [pkg, setPkg] = useState(null); 
 
   useEffect(() => {
     async function fetchPackage() {
       try {
-        const all = await loadPackages();
-        const found = all.find(p => p.slug === slug);
+        // CORREÇÃO: Usar a API mais eficiente loadPackageBySlug
+        const found = await loadPackageBySlug(slug);
+        
         if (!found) {
           toast({ title: "Pacote não encontrado" });
         }
-        setPkg(found || null);
+        setPkg(found || false); // Se não encontrar, setar como false
       } catch (err) {
         console.error("Erro ao buscar pacote:", err);
         toast({ title: "Erro ao buscar pacote" });
+        setPkg(false); // Em caso de erro, setar como não encontrado
       }
     }
     fetchPackage();
@@ -211,7 +216,7 @@ export function PackageDetail() {
     );
   }
 
-  if (!pkg) {
+  if (pkg === false) { // Verifica se é false (não encontrado/erro)
     return (
       <SiteShell>
         <div className="max-w-4xl mx-auto px-4 py-12 text-center">

@@ -1,3 +1,4 @@
+// Agrupados para fins de separação, mas idealmente estariam em arquivos como SiteShell.jsx e Home.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
@@ -7,8 +8,9 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { AspectRatio } from "../components/ui/aspect-ratio";
 import { Separator } from "../components/ui/separator";
 import { Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
-import { loadPackages as fetchPackages } from "../api"; // API real
+import { loadPackages as fetchPackages } from "../services/api"; // API real
 
+// === NavBar Component ===
 export function NavBar() {
   const nav = useNavigate();
   return (
@@ -31,6 +33,7 @@ export function NavBar() {
   );
 }
 
+// === Footer Component ===
 export function Footer() {
   return (
     <footer className="mt-20 border-t bg-white" id="contato">
@@ -69,6 +72,7 @@ export function Footer() {
   );
 }
 
+// === Site Shell Component ===
 export function SiteShell({ children }) {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
@@ -79,6 +83,7 @@ export function SiteShell({ children }) {
   );
 }
 
+// === Package Card Component (Usado em Listagem e Home) ===
 export function PackageCard({ pkg }) {
   return (
     <Card className="overflow-hidden group">
@@ -102,6 +107,7 @@ export function PackageCard({ pkg }) {
   );
 }
 
+// === Row Component (Usado na Home) ===
 function Row({ title, filter }) {
   const [pkgs, setPkgs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -137,6 +143,7 @@ function Row({ title, filter }) {
   );
 }
 
+// === Home Page Component ===
 export function Home() {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -148,6 +155,7 @@ export function Home() {
       .finally(() => setLoading(false));
   }, []);
 
+  // CORREÇÃO: O featuredHome agora é um booleano graças à desserialização do backend
   const featured = packages.filter(p => p.featuredHome);
 
   return (

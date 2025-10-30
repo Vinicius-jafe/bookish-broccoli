@@ -33,6 +33,14 @@ export async function loadPackages() {
   return await res.json();
 }
 
+// NOVO/MELHORIA: Função para carregar um único pacote por slug
+export async function loadPackageBySlug(slug) {
+  const res = await fetch(`${API_URL}/packages/${slug}`);
+  if (res.status === 404) return null; 
+  if (!res.ok) throw new Error("Erro ao carregar pacote por slug");
+  return await res.json();
+}
+
 export async function upsertPackage(pkg) {
   const res = await fetch(`${API_URL}/packages`, {
     method: "POST",
@@ -48,8 +56,3 @@ export async function deletePackage(id) {
   if (!res.ok) throw new Error("Erro ao excluir pacote");
   return await res.json();
 }
-export const months = [
-  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-];
-

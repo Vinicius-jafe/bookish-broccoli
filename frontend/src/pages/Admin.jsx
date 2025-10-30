@@ -7,7 +7,7 @@ import { Card } from "../components/ui/card";
 import { Textarea } from "../components/ui/textarea";
 import { toast } from "../hooks/use-toast";
 import { SiteShell } from "../components/SiteShell";
-import { isAdmin, loginAdmin, logoutAdmin, loadPackages, upsertPackage, deletePackage } from "../api";
+import { isAdmin, loginAdmin, logoutAdmin, loadPackages, upsertPackage, deletePackage } from "../services/api"; // Corrigido para "../services/api"
 
 function PackageForm({ initial, onCancel, onSaved }) {
   const [form, setForm] = useState(
@@ -33,20 +33,36 @@ function PackageForm({ initial, onCancel, onSaved }) {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!form.slug)
-      form.slug = form.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)/g, "");
+    
+    // Lógica para slugify, caso não tenha sido preenchido
+    let finalSlug = form.slug;
+    if (!finalSlug && form.title) {
+        finalSlug = form.title
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, "");
+    }
+    
+    // Garantir que os campos numéricos sejam números
+    let finalDuration = form.duration;
+    if (typeof finalDuration === "string")
+      finalDuration = parseInt(finalDuration || "0", 10);
+      
+    let finalPriceFrom = form.priceFrom;
+    if (typeof finalPriceFrom === "string")
+      finalPriceFrom = parseFloat(finalPriceFrom || "0");
+      
+    const finalForm = {
+        ...form,
+        slug: finalSlug,
+        duration: finalDuration,
+        priceFrom: finalPriceFrom,
+    };
 
-    if (typeof form.duration === "string")
-      form.duration = parseInt(form.duration || "0", 10);
-    if (typeof form.priceFrom === "string")
-      form.priceFrom = parseFloat(form.priceFrom || "0");
 
     try {
-      await upsertPackage(form);
-      toast({ title: "Pacote salvo", description: form.title });
+      await upsertPackage(finalForm);
+      toast({ title: "Pacote salvo", description: finalForm.title });
       onSaved && onSaved();
     } catch (err) {
       console.error(err);
@@ -209,10 +225,12 @@ export default function Admin() {
 
   // 🔄 Carregar pacotes do backend
   useEffect(() => {
-    loadPackages()
-      .then(setData)
-      .catch((err) => console.error("Erro ao carregar pacotes:", err));
-  }, []);
+    if (logged) {
+        loadPackages()
+        .then(setData)
+        .catch((err) => console.error("Erro ao carregar pacotes:", err));
+    }
+  }, [logged]); // Adicionado logged como dependência
 
   const doLogin = async (e) => {
     e.preventDefault();
@@ -220,6 +238,10 @@ export default function Admin() {
     if (ok) {
       toast({ title: "Login realizado" });
       setLogged(true);
+      // Recarrega os pacotes após o login
+      loadPackages()
+        .then(setData)
+        .catch((err) => console.error("Erro ao carregar pacotes:", err));
     } else {
       toast({ title: "Credenciais inválidas" });
     }
