@@ -142,7 +142,13 @@ function Row({ title, subtitle, filter, primaryColor = false }) {
   }, [filter]);
 
   if (loading) return <div className="text-center py-6">Carregando...</div>;
-  if (!pkgs.length) return null;
+  if (!pkgs.length) return (
+    <section className="max-w-6xl mx-auto px-4 mt-12">
+      <div className="p-4 rounded-lg bg-muted text-muted-foreground text-center text-sm">
+        Nenhum pacote encontrado para esta seção.
+      </div>
+    </section>
+  );
 
   const headerClasses = primaryColor ? "bg-primary text-white" : "bg-gradient-to-r from-primary/20 to-white text-primary";
 
@@ -261,7 +267,7 @@ export function Home() {
       {/* 1. HERO SECTION */}
       <section className="bg-white border-b overflow-hidden relative">
         <div className="max-w-6xl mx-auto px-4 py-16 md:py-24 grid md:grid-cols-2 gap-10 items-center">
-          <div>
+          <div className="relative z-10">
             <h1 className="text-3xl md:text-5xl font-semibold tracking-tight leading-snug">
               Viajar não é apenas <br /> um destino, é um <span className="text-primary">encontro com você!</span>
             </h1>
@@ -281,18 +287,18 @@ export function Home() {
             <img 
               src={featuredImages[0]}
               alt="Viagem" 
-              className="absolute w-48 h-64 object-cover rotate-3 shadow-xl border-4 border-white"
+              className="absolute w-48 h-64 object-cover rotate-3 shadow-xl border-4 border-white pointer-events-none select-none"
               style={{ top: '20%', left: '10%' }}
             />
             <span className="absolute bottom-1/4 left-1/4 text-base font-semibold text-gray-800 rotate-3">FRANÇA</span>
             <img 
               src={featuredImages[1]} 
               alt="Viagem 2" 
-              className="absolute w-48 h-64 object-cover -rotate-6 shadow-xl border-4 border-white"
+              className="absolute w-48 h-64 object-cover -rotate-6 shadow-xl border-4 border-white pointer-events-none select-none"
               style={{ top: '10%', right: '10%' }}
             />
             <span className="absolute bottom-1/4 right-1/4 text-base font-semibold text-gray-800 -rotate-6">FRANÇA</span>
-            <Airplay className="absolute top-0 right-0 h-20 w-20 text-primary opacity-50 hidden md:block" />
+            <Airplay className="absolute top-0 right-0 h-20 w-20 text-primary opacity-50 hidden md:block pointer-events-none" />
           </div>
         </div>
       </section>
