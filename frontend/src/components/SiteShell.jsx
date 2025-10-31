@@ -24,7 +24,7 @@ export function NavBar() {
           <a className="hover:text-primary" href="#sobre">Sobre</a>
           <Link className="hover:text-primary" to="/pacotes">Roteiros</Link>
           <a href="#contato">
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-5">
               Contatos
             </Button>
           </a>
@@ -119,7 +119,7 @@ export function PackageCard({ pkg, compact = false }) {
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
         />
       </AspectRatio>
-      <div className="absolute inset-x-0 bottom-0 bg-white/80 backdrop-blur-sm p-3 text-center border-t border-primary/30">
+      <div className="absolute inset-x-0 bottom-0 bg-white/85 backdrop-blur-sm p-3 text-center border-t border-primary/30 rounded-t-md">
         <div className="text-base font-semibold text-gray-800">{pkg.destination}</div>
         <Link to={`/pacotes/${pkg.slug}`}>
           <Button size="sm" className="mt-1 bg-primary hover:bg-primary/90">Ver todos</Button>
@@ -144,7 +144,7 @@ function Row({ title, subtitle, filter, primaryColor = false }) {
   if (loading) return <div className="text-center py-6">Carregando...</div>;
   if (!pkgs.length) return null;
 
-  const headerClasses = primaryColor ? "bg-primary text-white" : "bg-primary/10 text-primary";
+  const headerClasses = primaryColor ? "bg-primary text-white" : "bg-gradient-to-r from-primary/20 to-white text-primary";
 
   return (
     <section className="max-w-6xl mx-auto px-4 mt-12">
@@ -154,11 +154,11 @@ function Row({ title, subtitle, filter, primaryColor = false }) {
           <h2 className="text-xl md:text-2xl font-semibold">{title}</h2>
         </div>
         <Link to="/pacotes" className="text-white hover:opacity-90">
-          <Button variant="outline" className={`border-white ${primaryColor ? 'bg-primary text-white hover:bg-white hover:text-primary' : 'bg-primary text-white hover:bg-primary/90'}`}>
+          <Button variant="outline" className={`rounded-full px-5 border-white ${primaryColor ? 'bg-white text-primary hover:bg-white/90' : 'bg-primary text-white hover:bg-primary/90'}`}>
             Ver todos
           </Button>
         </Link>
-        {primaryColor && <Airplay className="absolute -top-6 -right-6 h-28 w-28 text-primary/70 transform rotate-12 hidden md:block" />}
+        {primaryColor && <Airplay className="absolute -top-6 -right-6 h-28 w-28 text-white/60 transform rotate-12 drop-shadow hidden md:block" />}
       </div>
       <div className="border border-t-0 p-4 pt-6">
         <Carousel className="w-full">
@@ -175,6 +175,59 @@ function Row({ title, subtitle, filter, primaryColor = false }) {
         <p className="text-center text-xs text-gray-600 mt-4">
           Cada pacote inclui suporte especializado, opções de customização e um ambiente seguro para mulheres que decidem dizer "eu vou".
         </p>
+      </div>
+    </section>
+  );
+}
+
+// === Contact CTA (seção do formulário exatamente como no mockup) ===
+function ContactCTA() {
+  return (
+    <section className="max-w-3xl mx-auto px-4 mt-16">
+      <div className="text-center">
+        <h2 className="text-2xl md:text-3xl font-bold">Está preparada para dizer <span className="text-primary">sim para você?</span></h2>
+        <p className="text-sm text-gray-600 mt-2 max-w-2xl mx-auto">
+          Fale com a nossa equipe e descubra o roteiro que vai fazer seu coração vibrar.
+          Além de parcelamento facilitado, oferecemos atendimento personalizado para que sua
+          viagem seja leve, segura e inesquecível.
+        </p>
+      </div>
+
+      <div className="mt-6">
+        <div className="h-3 bg-primary/20 rounded-t"></div>
+        <div className="bg-primary px-6 py-6">
+          <h3 className="text-white text-center mb-3">Entraremos em contato com os dados informados abaixo:</h3>
+          <div className="space-y-3 max-w-xl mx-auto">
+            <input className="w-full rounded bg-white h-8 px-3 text-sm" placeholder="Nome" />
+            <input className="w-full rounded bg-white h-8 px-3 text-sm" placeholder="Telefone" />
+            <input className="w-full rounded bg-white h-8 px-3 text-sm" placeholder="Email" />
+            <input className="w-full rounded bg-white h-8 px-3 text-sm" placeholder="Qual sua cidade origem?" />
+            <input className="w-full rounded bg-white h-8 px-3 text-sm" placeholder="Quais destinos gostaria de conhecer?" />
+            <input className="w-full rounded bg-white h-8 px-3 text-sm" placeholder="Qual período deseja viajar?" />
+            <input className="w-full rounded bg-white h-8 px-3 text-sm" placeholder="Quantidade de pessoas" />
+          </div>
+        </div>
+        <div className="h-3 bg-primary/20 rounded-b"></div>
+      </div>
+
+      <p className="text-center text-sm text-gray-700 mt-6">
+        Porque viajar é autocuidado, é liberdade, é reencontrar quem você é
+        <br />
+        <span className="font-bold">e o mundo espera.</span>
+      </p>
+
+      <div className="mt-8 border-t pt-6">
+        <div className="grid md:grid-cols-3 gap-6 items-center bg-primary/10 p-6 rounded">
+          <div className="flex items-center justify-center">
+            <div className="text-2xl font-serif text-primary">Bella</div>
+          </div>
+          <div className="md:col-span-2 text-sm text-gray-700">
+            Documentação, políticas de pagamento, suporte 24h,
+            grupos exclusivos para mulheres.
+            Vagas limitadas por formato de viagem — garanta sua
+            presença.
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -255,6 +308,20 @@ export function Home() {
         primaryColor={true}
       />
 
+      {/* Banner entre listas */}
+      <section className="max-w-6xl mx-auto px-4 mt-8">
+        <div className="rounded overflow-hidden bg-cover bg-center h-40 md:h-52 flex items-center" style={{backgroundImage:"url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop')"}}>
+          <div className="bg-white/85 w-full h-full flex items-center">
+            <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-4 items-center w-full">
+              <div className="text-2xl font-serif text-primary">Bella renda & viagens</div>
+              <div className="md:col-span-2 text-xl md:text-2xl font-medium">
+                Na Bella Renda e Viagens, transformamos sonhos em <span className="text-primary font-bold">passaportes.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <Row 
         title="pelo Brasil" 
         subtitle="Roteiros mais procurados" 
@@ -281,6 +348,9 @@ export function Home() {
           ))}
         </div>
       </section>
+
+      {/* Seção de contato final */}
+      <ContactCTA />
 
       <Separator className="mt-16" />
     </SiteShell>
