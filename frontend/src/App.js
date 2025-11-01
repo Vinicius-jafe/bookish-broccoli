@@ -5,7 +5,6 @@ import { PackagesList, PackageDetail } from "./pages/Packages";
 import Admin from "./pages/Admin";
 import { Toaster } from "./components/ui/sonner";
 import "./index.css";
-
 // Componente para gerenciar o script de rastreamento do RD Station
 function RDTracking() {
   useEffect(() => {
@@ -20,14 +19,14 @@ function RDTracking() {
 
     // Limpeza ao desmontar o componente
     return () => {
-      const script = document.querySelector('script[src*="loader-scripts/a96ecee2-3e0a-4e8d-aae5-d6e614ff4f87-loader"]');
+      const script = 
+document.querySelector('script[src*="loader-scripts/a96ecee2-3e0a-4e8d-aae5-d6e614ff4f87-loader"]');
       if (script) {
         document.body.removeChild(script);
       }
     };
   }, []);
-
-  return null;
+return null;
 }
 
 function App() {
@@ -41,7 +40,8 @@ function App() {
           <Route path="/pacotes/:slug" element={<PackageDetail />} />
           <Route path="/admin" element={<Admin />} />
         </Routes>
-      </BrowserRouter>
+   
+    </BrowserRouter>
       <Toaster richColors position="top-right" />
     </div>
   );
