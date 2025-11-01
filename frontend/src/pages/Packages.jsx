@@ -206,42 +206,31 @@ function DetailedQuotationForm({ packageName }) {
                 Além de parcelamento facilitado, oferecemos atendimento personalizado.
             </p>
 
-            <form
-                id="leadFormDetailed"
-                method="POST"
-                action="https://www.rdstation.com.br/api/1.3/conversions"
-                target="_blank"
-                className="space-y-3 bg-primary p-6 rounded-lg shadow-xl"
-            >
-                <input type="hidden" name="token_rdstation" value="91840157086c5031777c4e425f6846be" />
-                <input type="hidden" name="identificador_formulario" value={RD_IDENTIFIER} />
-                <input type="hidden" name="pacoteTitulo" value={packageName || "Cotação Geral"} />
-                
-                <h3 className="text-white font-medium mb-4">
-                    Entraremos em contato com os dados informados abaixo:
-                </h3>
-
-                <Input name="name" placeholder="Nome" required className="bg-white border-none" />
-                <Input name="telefone" placeholder="Telefone" required className="bg-white border-none" />
-                <Input name="email" type="email" placeholder="Email" required className="bg-white border-none" />
-                <Input name="cidade_origem" placeholder="Qual sua cidade origem?" required className="bg-white border-none" />
-                <Input name="destinos_desejados" placeholder="Quais destinos gostaria de conhecer?" required className="bg-white border-none" />
-                <Input name="periodo_viagem" placeholder="Qual período deseja viajar?" required className="bg-white border-none" />
-                <Input name="quantidade_pessoas" type="number" placeholder="Quantidade de pessoas" required className="bg-white border-none" />
-                
-                <Button 
-                    type="submit" 
-                    className="w-full bg-white text-primary hover:bg-white/90 font-bold"
-                >
-                    Solicitar cotação
-                </Button>
-            </form>
+            <div className="space-y-3 bg-primary p-6 rounded-lg shadow-xl">
+                <div role="main" id="teste-304de8f79f849b27c1ba"></div>
+                <script type="text/javascript" src="https://d335luupugsy2.cloudfront.net/js/rdstation-forms/stable/rdstation-forms.min.js"></script>
+                <script type="text/javascript">
+                    {`
+                    document.addEventListener('DOMContentLoaded', function() {
+                        if (typeof RDStationForms !== 'undefined') {
+                            new RDStationForms('teste-304de8f79f849b27c1ba', 'null').createForm();
+                        } else {
+                            const script = document.createElement('script');
+                            script.src = 'https://d335luupugsy2.cloudfront.net/js/rdstation-forms/stable/rdstation-forms.min.js';
+                            script.onload = function() {
+                                new RDStationForms('teste-304de8f79f849b27c1ba', 'null').createForm();
+                            };
+                            document.body.appendChild(script);
+                        }
+                    });
+                    `}
+                </script>
+            </div>
             
             <p className="text-sm text-center text-gray-700 pt-4">
                 Porque viajar é autocuidado, é liberdade, é reencontrar quem você é 
                 e o mundo espera.
             </p>
-
         </div>
     );
 }
