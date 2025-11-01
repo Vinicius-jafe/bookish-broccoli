@@ -293,32 +293,82 @@ export function PackageDetail() {
   }
 
   return (
-    <SiteShell>
-      <section className="max-w-6xl mx-auto px-4 py-8 grid md:grid-cols-3 gap-8">
-        <div className="md:col-span-2">
-          <PackageCarousel images={pkg.images} title={pkg.title} />
-          <h1 className="text-2xl font-semibold mt-4">{pkg.title}</h1>
-          <div className="text-muted-foreground">
-            {pkg.destination} • {pkg.duration} dias • {pkg.region}
-          </div>
-          <div className="mt-4">
-            <div className="font-semibold text-primary">
-              A partir de R$ {pkg.priceFrom?.toLocaleString("pt-BR")}
-            </div>
-            <div className="mt-2 text-sm">
-              Inclui: {(pkg.inclusions || []).join(", ")}
-            </div>
-          </div>
-          <p className="mt-4 text-sm md:text-base text-muted-foreground">
-            {pkg.longDescription}
-          </p>
-        </div>
+    <SiteShell>
+      <div className="bg-white">
+        <section className="max-w-6xl mx-auto px-4 py-8">
+          <Button 
+            variant="ghost" 
+            onClick={() => nav(-1)}
+            className="mb-4 flex items-center gap-2 text-sm"
+          >
+            <ArrowLeft className="h-4 w-4" /> Voltar para pacotes
+          </Button>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="md:col-span-2 space-y-6">
+              <PackageCarousel images={pkg.images} title={pkg.title} />
+              
+              <div className="bg-white p-6 rounded-lg shadow-sm border">
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{pkg.title}</h1>
+                
+                <div className="flex items-center gap-2 mt-2 text-muted-foreground text-sm">
+                  <span>{pkg.destination}</span>
+                  <span>•</span>
+                  <span>{pkg.duration} dias</span>
+                  {pkg.region && (
+                    <>
+                      <span>•</span>
+                      <span className="capitalize">{pkg.region}</span>
+                    </>
+                  )}
+                </div>
+                
+                <div className="mt-6">
+                  <div className="text-2xl font-bold text-primary">
+                    A partir de R$ {pkg.priceFrom?.toLocaleString("pt-BR")}
+                  </div>
+                  
+                  {pkg.inclusions?.length > 0 && (
+                    <div className="mt-4">
+                      <h3 className="font-semibold text-gray-900 mb-2">Inclui:</h3>
+                      <ul className="space-y-1 text-sm text-gray-600">
+                        {pkg.inclusions.map((item, i) => (
+                          <li key={i} className="flex items-start">
+                            <span className="text-green-500 mr-2">✓</span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+                
+                {pkg.longDescription && (
+                  <div className="mt-8 pt-6 border-t">
+                    <h3 className="font-semibold text-gray-900 mb-3">Sobre este pacote</h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      {pkg.longDescription}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
 
-        {/* === NOVO FORMULÁRIO DE COTAÇÃO DETALHADO === */}
-        <Card className="p-0 h-fit border-none shadow-lg">
-          <DetailedQuotationForm packageName={pkg.title} />
-        </Card>
-      </section>
-    </SiteShell>
+            {/* Formulário de cotação */}
+            <div className="sticky top-4 h-fit">
+              <Card className="border border-gray-200 shadow-lg overflow-hidden">
+                <div className="bg-primary p-4 text-white">
+                  <h3 className="font-semibold text-lg">Solicitar Cotação</h3>
+                  <p className="text-sm opacity-90">Preencha o formulário abaixo</p>
+                </div>
+                <div className="p-4">
+                  <DetailedQuotationForm packageName={pkg.title} />
+                </div>
+              </Card>
+            </div>
+          </div>
+        </section>
+      </div>
+    </SiteShell>
   );
 }
