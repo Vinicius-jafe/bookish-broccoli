@@ -195,6 +195,76 @@ export function PackagesList() {
 function DetailedQuotationForm({ packageName }) {
     // Efeito para carregar o script de rastreamento do RD Station
     useEffect(() => {
+        // Adiciona estilos personalizados para o formulário RD Station
+        const style = document.createElement('style');
+        style.textContent = `
+            /* Estilos para o formulário RD Station */
+            #integracao-3bd2e2520b4a83678275 .rd-form {
+                font-family: inherit !important;
+                color: inherit !important;
+            }
+            
+            #integracao-3bd2e2520b4a83678275 .form-content {
+                padding: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+            }
+            
+            #integracao-3bd2e2520b4a83678275 .rd-button,
+            #integracao-3bd2e2520b4a83678275 button[type="submit"] {
+                background-color: #0ea5e9 !important;
+                color: white !important;
+                border: none !important;
+                border-radius: 0.5rem !important;
+                padding: 0.75rem 1.5rem !important;
+                font-weight: 500 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.05em !important;
+                cursor: pointer !important;
+                transition: all 0.2s !important;
+                width: 100% !important;
+                margin-top: 1rem !important;
+            }
+            
+            #integracao-3bd2e2520b4a83678275 .rd-button:hover,
+            #integracao-3bd2e2520b4a83678275 button[type="submit"]:hover {
+                background-color: #0284c7 !important;
+            }
+            
+            #integracao-3bd2e2520b4a83678275 .form-field {
+                margin-bottom: 1rem !important;
+            }
+            
+            #integracao-3bd2e2520b4a83678275 input[type="text"],
+            #integracao-3bd2e2520b4a83678275 input[type="email"],
+            #integracao-3bd2e2520b4a83678275 input[type="tel"],
+            #integracao-3bd2e2520b4a83678275 input[type="number"],
+            #integracao-3bd2e2520b4a83678275 textarea,
+            #integracao-3bd2e2520b4a83678275 select {
+                width: 100% !important;
+                padding: 0.75rem !important;
+                border: 1px solid #e2e8f0 !important;
+                border-radius: 0.375rem !important;
+                background-color: white !important;
+                color: #1e293b !important;
+                font-size: 0.875rem !important;
+                line-height: 1.25rem !important;
+            }
+            
+            #integracao-3bd2e2520b4a83678275 label {
+                color: white !important;
+                font-size: 0.875rem !important;
+                font-weight: 500 !important;
+                margin-bottom: 0.5rem !important;
+                display: block !important;
+            }
+            
+            #integracao-3bd2e2520b4a83678275 .header {
+                display: none !important;
+            }
+        `;
+        document.head.appendChild(style);
+
         // Verifica se o script já existe
         if (!document.querySelector('script[src*="loader-scripts/e472b6d1-b803-41d3-a4f8-9e9a6b2cbac0-loader"]')) {
             const script = document.createElement('script');
@@ -209,11 +279,11 @@ function DetailedQuotationForm({ packageName }) {
             const formScript = document.createElement('script');
             formScript.src = 'https://d335luupugsy2.cloudfront.net/js/rdstation-forms/stable/rdstation-forms.min.js';
             formScript.onload = function() {
-                new RDStationForms('teste-304de8f79f849b27c1ba', 'null').createForm();
+                new RDStationForms('integracao-3bd2e2520b4a83678275', 'null').createForm();
             };
             document.body.appendChild(formScript);
         } else {
-            new RDStationForms('teste-304de8f79f849b27c1ba', 'null').createForm();
+            new RDStationForms('integracao-3bd2e2520b4a83678275', 'null').createForm();
         }
 
         // Limpeza ao desmontar o componente
@@ -222,6 +292,10 @@ function DetailedQuotationForm({ packageName }) {
             const script = document.querySelector('script[src*="loader-scripts/e472b6d1-b803-41d3-a4f8-9e9a6b2cbac0-loader"]');
             if (script) {
                 document.body.removeChild(script);
+            }
+            // Remove os estilos personalizados
+            if (style && style.parentNode) {
+                style.parentNode.removeChild(style);
             }
         };
     }, []);
@@ -236,8 +310,8 @@ function DetailedQuotationForm({ packageName }) {
                 Além de parcelamento facilitado, oferecemos atendimento personalizado.
             </p>
 
-            <div className="space-y-3 bg-primary p-6 rounded-lg shadow-xl">
-                <div role="main" id="teste-304de8f79f849b27c1ba"></div>
+            <div className="space-y-3 bg-primary p-6 rounded-lg shadow-xl rd-form-container">
+                <div role="main" id="integracao-3bd2e2520b4a83678275"></div>
             </div>
             
             <p className="text-sm text-center text-gray-700 pt-4">
