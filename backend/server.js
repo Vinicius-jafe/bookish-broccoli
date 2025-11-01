@@ -9,10 +9,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Configura o Express para servir arquivos estáticos da pasta 'uploads'.
-// Isso é crucial para que as imagens carregadas sejam acessíveis via URL após o deploy.
-// O path.resolve() garante que o caminho é absoluto, o que é robusto para diferentes ambientes (local/deploy).
-// A URL de acesso será: [SEU_DOMINIO]/uploads/nome-do-arquivo.jpg
 app.use('/uploads', express.static(path.resolve('uploads')));
 
 // Rotas
