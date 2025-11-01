@@ -3,182 +3,191 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input"; // Certifique-se desta importação
 import { Textarea } from "../components/ui/textarea"; // Certifique-se desta importação
+
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
 } from "../components/ui/select";
 import { Slider } from "../components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import { Card } from "../components/ui/card";
 import { toast } from "../hooks/use-toast";
 import { AspectRatio } from "../components/ui/aspect-ratio";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious
-} from "../components/ui/carousel";
-import { SiteShell, PackageCard } from "../components/SiteShell"; 
+import { SiteShell, PackageCard } from "../components/SiteShell"; 
 import { loadPackages, loadPackageBySlug } from "../services/api"; // Ajustado para services/api
 import { months as monthList } from "../constants/months"; // Assumindo que você moveu os meses para um arquivo separado
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 // ... useQuery e PackageCarousel (MANTIDOS) ...
 function useQuery() {
-  const { search } = useLocation();
-  return React.useMemo(() => new URLSearchParams(search), [search]);
+  const { search } = useLocation();
+  return React.useMemo(() => new URLSearchParams(search), [search]);
 }
 
 function PackageCarousel({ images = [], title }) {
-  if (!images.length) return null;
-  return (
-    <Carousel>
-      <CarouselContent>
-        {images.map((src, idx) => (
-          <CarouselItem key={idx} className="pr-4">
-            <AspectRatio ratio={16 / 9}>
-              <img
-                src={src}
-                alt={`${title}-${idx}`}
-                className="w-full h-full object-cover rounded-md"
-              />
-            </AspectRatio>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
-    </Carousel>
-  );
+  const [index, setIndex] = useState(0);
+  if (!images.length) return null;
+
+  const prev = () => setIndex((i) => (i - 1 + images.length) % images.length);
+  const next = () => setIndex((i) => (i + 1) % images.length);
+
+  return (
+    <div className="relative">
+      <AspectRatio ratio={16 / 9}>
+        <img
+          src={images[index]}
+          alt={`${title}-${index}`}
+          className="w-full h-full object-cover rounded-md"
+        />
+      </AspectRatio>
+      <Button
+        variant="outline"
+        size="icon"
+        className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full"
+        onClick={prev}
+        aria-label="Imagem anterior"
+      >
+        <ArrowLeft className="h-4 w-4" />
+      </Button>
+      <Button
+        variant="outline"
+        size="icon"
+        className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full"
+        onClick={next}
+        aria-label="Próxima imagem"
+      >
+        <ArrowRight className="h-4 w-4" />
+      </Button>
+    </div>
+  );
 }
 
 // ... PackagesList (MANTIDO, mas usando a nova cor primária nos botões) ...
 export function PackagesList() {
-  const nav = useNavigate();
-  const query = useQuery();
-  const initialType = query.get("tipo") || "todos";
-  const [type, setType] = useState(initialType);
-  const [region, setRegion] = useState("todas");
-  const [term, setTerm] = useState("");
-  const [duration, setDuration] = useState([1, 10]);
-  const [month, setMonth] = useState("todas");
+  const nav = useNavigate();
+  const query = useQuery();
+  const initialType = query.get("tipo") || "todos";
+  const [type, setType] = useState(initialType);
+  const [region, setRegion] = useState("todas");
+  const [term, setTerm] = useState("");
+  const [duration, setDuration] = useState([1, 10]);
+  const [month, setMonth] = useState("todas");
 
-  const [pkgs, setPkgs] = useState([]); // estado para pacotes
+  const [pkgs, setPkgs] = useState([]); // estado para pacotes
 
-  useEffect(() => {
-    async function fetchPackages() {
-      try {
-        const data = await loadPackages();
-        setPkgs(data);
-      } catch (err) {
-        console.error("Erro ao carregar pacotes:", err);
-        toast({ title: "Erro ao carregar pacotes" });
-      }
-    }
-    fetchPackages();
-  }, []);
+  useEffect(() => {
+    async function fetchPackages() {
+      try {
+        const data = await loadPackages();
+        setPkgs(data);
+      } catch (err) {
+        console.error("Erro ao carregar pacotes:", err);
+        toast({ title: "Erro ao carregar pacotes" });
+      }
+    }
+    fetchPackages();
+  }, []);
 
-  const regions = useMemo(() => Array.from(new Set(pkgs.map(p => p.region))).filter(Boolean), [pkgs]);
+  const regions = useMemo(() => Array.from(new Set(pkgs.map(p => p.region))).filter(Boolean), [pkgs]);
 
-  const filtered = useMemo(() => {
-    return pkgs.filter(p => {
-      if (type !== "todos" && p.type !== type) return false;
-      if (region !== "todas" && p.region !== region) return false;
-      // Este filtro de mês agora funciona, pois o backend está retornando p.months como array
-      if (month !== "todas" && !(p.months || []).includes(month)) return false; 
-      const dOk = p.duration >= duration[0] && p.duration <= duration[1];
-      if (!dOk) return false;
-      const tOk = `${p.title} ${p.destination}`.toLowerCase().includes(term.toLowerCase());
-      return tOk;
-    });
-  }, [pkgs, type, region, month, duration, term]);
+  const filtered = useMemo(() => {
+    return pkgs.filter(p => {
+      if (type !== "todos" && p.type !== type) return false;
+      if (region !== "todas" && p.region !== region) return false;
+      // Este filtro de mês agora funciona, pois o backend está retornando p.months como array
+      if (month !== "todas" && !(p.months || []).includes(month)) return false; 
+      const dOk = p.duration >= duration[0] && p.duration <= duration[1];
+      if (!dOk) return false;
+      const tOk = `${p.title} ${p.destination}`.toLowerCase().includes(term.toLowerCase());
+      return tOk;
+    });
+  }, [pkgs, type, region, month, duration, term]);
 
-  return (
-    <SiteShell>
-      <section className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-semibold">Encontre seu próximo destino</h1>
-        <div className="mt-6 grid md:grid-cols-4 gap-4">
-          {/* === FILTROS === */}
-          <Card className="p-4 md:col-span-1">
-            <div className="text-sm font-medium mb-2">Tipo de viagem</div>
-            <ToggleGroup
-              type="single"
-              value={type}
-              onValueChange={(v) => setType(v || "todos")}
-              className="flex flex-wrap gap-2"
-            >
-              <ToggleGroupItem value="todos">Todos</ToggleGroupItem>
-              <ToggleGroupItem value="nacional">Nacional</ToggleGroupItem>
-              <ToggleGroupItem value="internacional">Internacional</ToggleGroupItem>
-            </ToggleGroup>
+  return (
+    <SiteShell>
+      <section className="max-w-6xl mx-auto px-4 py-8">
+        <h1 className="text-2xl font-semibold">Encontre seu próximo destino</h1>
+        <div className="mt-6 grid md:grid-cols-4 gap-4">
+          {/* === FILTROS === */}
+          <Card className="p-4 md:col-span-1">
+            <div className="text-sm font-medium mb-2">Tipo de viagem</div>
+            <ToggleGroup
+              type="single"
+              value={type}
+              onValueChange={(v) => setType(v || "todos")}
+              className="flex flex-wrap gap-2"
+            >
+              <ToggleGroupItem value="todos">Todos</ToggleGroupItem>
+              <ToggleGroupItem value="nacional">Nacional</ToggleGroupItem>
+              <ToggleGroupItem value="internacional">Internacional</ToggleGroupItem>
+            </ToggleGroup>
+            <div className="mt-4 text-sm font-medium">Destino/Região</div>
+            <Select value={region} onValueChange={setRegion}>
+              <SelectTrigger className="mt-2">
+                <SelectValue placeholder="Todas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todas">Todas</SelectItem>
+                {regions.map(r => (
+                  <SelectItem key={r} value={r}>{r}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-            <div className="mt-4 text-sm font-medium">Destino/Região</div>
-            <Select value={region} onValueChange={setRegion}>
-              <SelectTrigger className="mt-2">
-                <SelectValue placeholder="Todas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todas">Todas</SelectItem>
-                {regions.map(r => (
-                  <SelectItem key={r} value={r}>{r}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="mt-4 text-sm font-medium">Duração (dias)</div>
+            <div className="px-1">
+              <Slider value={duration} onValueChange={setDuration} min={1} max={30} step={1} />
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{duration[0]}d</span><span>{duration[1]}d</span>
+            </div>
 
-            <div className="mt-4 text-sm font-medium">Duração (dias)</div>
-            <div className="px-1">
-              <Slider value={duration} onValueChange={setDuration} min={1} max={30} step={1} />
-            </div>
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{duration[0]}d</span><span>{duration[1]}d</span>
-            </div>
+            <div className="mt-4 text-sm font-medium">Mês/Temporada</div>
+            <Select value={month} onValueChange={setMonth}>
+              <SelectTrigger className="mt-2">
+                <SelectValue placeholder="Todas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todas">Todas</SelectItem>
+                {monthList.map(m => (
+                  <SelectItem key={m} value={m}>{m}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-            <div className="mt-4 text-sm font-medium">Mês/Temporada</div>
-            <Select value={month} onValueChange={setMonth}>
-              <SelectTrigger className="mt-2">
-                <SelectValue placeholder="Todas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todas">Todas</SelectItem>
-                {monthList.map(m => (
-                  <SelectItem key={m} value={m}>{m}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="mt-4 text-sm font-medium">Buscar</div>
+            <Input
+              value={term}
+              onChange={(e) => setTerm(e.target.value)}
+              placeholder="Destino, hotel..."
+              className="mt-2"
+            />
 
-            <div className="mt-4 text-sm font-medium">Buscar</div>
-            <Input
-              value={term}
-              onChange={(e) => setTerm(e.target.value)}
-              placeholder="Destino, hotel..."
-              className="mt-2"
-            />
+            <Button 
+              className="mt-4 w-full bg-primary hover:bg-primary/90" 
+              onClick={() => nav(`/pacotes?tipo=${type}`)}>
+              Aplicar filtros
+            </Button>
+          </Card>
 
-            <Button 
-                className="mt-4 w-full bg-primary hover:bg-primary/90" 
-                onClick={() => nav(`/pacotes?tipo=${type}`)}>
-              Aplicar filtros
-            </Button>
-          </Card>
-
-          {/* === RESULTADOS === */}
-          <div className="md:col-span-3">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filtered.map(p => (<PackageCard key={p.id} pkg={p} compact={false} />))}
-            </div>
-            {!filtered.length && (
-              <div className="text-center text-muted-foreground py-10">
-                Nenhum pacote encontrado para os filtros selecionados.
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-    </SiteShell>
-  );
+          {/* === RESULTADOS === */}
+          <div className="md:col-span-3">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filtered.map(p => (<PackageCard key={p.id} pkg={p} compact={false} />))}
+            </div>
+            {!filtered.length && (
+              <div className="text-center text-muted-foreground py-10">
+                Nenhum pacote encontrado para os filtros selecionados.
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    </SiteShell>
+  );
 }
 
 // === NOVO FORMULÁRIO DE COTAÇÃO DETALHADO (Componente Auxiliar) ===
