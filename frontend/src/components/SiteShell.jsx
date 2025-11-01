@@ -7,7 +7,9 @@ import { Badge } from "../components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../components/ui/carousel";
 import { AspectRatio } from "../components/ui/aspect-ratio";
 import { Separator } from "../components/ui/separator";
-import { Instagram, Youtube, Mail, Phone, MapPin, Airplay } from "lucide-react"; // Substituído Dragonfly por Airplay
+import { Instagram, Youtube, Mail, Phone, MapPin, Airplay, Star, ShieldCheck } from "lucide-react";
+import { Benefits } from "./sections/Benefits";
+import { Testimonials } from "./sections/Testimonials";
 import { loadPackages as fetchPackages, imageUrl } from "../services/api"; // API real
 
 // === NavBar Component ===
@@ -239,6 +241,10 @@ function ContactCTA() {
   );
 }
 
+// Importando os novos componentes
+import { Benefits } from "./sections/Benefits";
+import { Testimonials } from "./sections/Testimonials";
+
 // === Home Page Component ===
 export function Home() {
   const [packages, setPackages] = useState([]);
@@ -357,8 +363,25 @@ export function Home() {
 
       {/* Seção de contato final */}
       <ContactCTA />
-
-      <Separator className="mt-16" />
+      
+      {/* Seção de Benefícios */}
+      <Benefits />
+      
+      {/* Seção de Depoimentos */}
+      <Testimonials />
+      
+      {/* Seção CTA Final */}
+      <div className="bg-primary text-white py-16">
+        <div className="max-w-3xl mx-auto text-center px-4">
+          <h2 className="text-3xl font-bold mb-4">Pronta para sua próxima aventura?</h2>
+          <p className="mb-8 text-primary-foreground/90">Entre em contato agora mesmo e comece a planejar sua viagem dos sonhos</p>
+          <a href="#contato">
+            <Button className="bg-white text-primary hover:bg-gray-100 px-8 py-6 text-lg">
+              Fale com um especialista
+            </Button>
+          </a>
+        </div>
+      </div>
     </SiteShell>
   );
 }

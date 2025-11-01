@@ -2,17 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 /* ==========================
    RESET GLOBAL
 ========================== */
 @layer base {
   html, body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
                  "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     @apply bg-background text-foreground transition-colors;
+    scroll-behavior: smooth;
   }
 
   code {
@@ -39,6 +42,7 @@
 
     /* Cores principais Bella Renda */
     --primary-bella: 326 59% 49%;
+  --primary: 326 59% 49%;
     --primary-foreground: 0 0% 98%;
     --ring-bella: 326 59% 49%;
 
@@ -63,6 +67,8 @@
 
     /* Radius */
     --radius: 0.5rem;
+  --border-radius: 0.5rem;
+  --transition: all 0.3s ease;
   }
 
   .dark {
@@ -74,6 +80,7 @@
     --popover-foreground: 0 0% 98%;
 
     --primary-bella: 326 59% 65%;
+  --primary: 326 59% 65%;
     --primary-foreground: 0 0% 9%;
     --ring-bella: 326 59% 65%;
 
