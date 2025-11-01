@@ -1,6 +1,14 @@
 // src/services/api.js
 
 const API_URL = "https://bookish-broccoli-nue4.onrender.com/api"; // ✅ backend no Render
+export const API_ORIGIN = API_URL.replace(/\/api$/, "");
+
+export function imageUrl(p) {
+  if (!p) return p;
+  if (/^https?:\/\//i.test(p)) return p;
+  const normalized = p.startsWith("/") ? p : `/${p}`;
+  return `${API_ORIGIN}${normalized}`;
+}
 
 // Função auxiliar para obter o token
 function getAuthHeaders() {

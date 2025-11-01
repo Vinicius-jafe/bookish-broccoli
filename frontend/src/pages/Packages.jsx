@@ -20,6 +20,7 @@ import { SiteShell, PackageCard } from "../components/SiteShell";
 import { loadPackages, loadPackageBySlug } from "../services/api"; // Ajustado para services/api
 import { months as monthList } from "../constants/months"; // Assumindo que você moveu os meses para um arquivo separado
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { imageUrl } from "../services/api";
 
 // ... useQuery e PackageCarousel (MANTIDOS) ...
 function useQuery() {
@@ -38,7 +39,7 @@ function PackageCarousel({ images = [], title }) {
     <div className="relative">
       <AspectRatio ratio={16 / 9}>
         <img
-          src={images[index]}
+          src={imageUrl(images[index])}
           alt={`${title}-${index}`}
           className="w-full h-full object-cover rounded-md"
         />

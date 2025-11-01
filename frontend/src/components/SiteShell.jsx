@@ -8,7 +8,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { AspectRatio } from "../components/ui/aspect-ratio";
 import { Separator } from "../components/ui/separator";
 import { Instagram, Youtube, Mail, Phone, MapPin, Airplay } from "lucide-react"; // Substituído Dragonfly por Airplay
-import { loadPackages as fetchPackages } from "../services/api"; // API real
+import { loadPackages as fetchPackages, imageUrl } from "../services/api"; // API real
 
 // === NavBar Component ===
 export function NavBar() {
@@ -92,7 +92,7 @@ export function PackageCard({ pkg, compact = false }) {
       <Card className="overflow-hidden group">
         <div className="relative">
           <AspectRatio ratio={16/9}>
-            <img src={pkg.images?.[0]} alt={pkg.title} className="w-full h-full object-cover" />
+            <img src={imageUrl(pkg.images?.[0])} alt={pkg.title} className="w-full h-full object-cover" />
           </AspectRatio>
           <Badge className="absolute top-2 left-2 capitalize bg-primary hover:bg-primary/90 text-white">{pkg.type}</Badge>
         </div>
@@ -114,7 +114,7 @@ export function PackageCard({ pkg, compact = false }) {
     <Card className="overflow-hidden group relative border-none shadow-md">
       <AspectRatio ratio={4/3}>
         <img 
-          src={pkg.images?.[0]} 
+          src={imageUrl(pkg.images?.[0])} 
           alt={pkg.title} 
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
         />
@@ -285,14 +285,14 @@ export function Home() {
           </div>
           <div className="relative h-64 md:h-96">
             <img 
-              src={featuredImages[0]}
+              src={imageUrl(featuredImages[0])}
               alt="Viagem" 
               className="absolute w-48 h-64 object-cover rotate-3 shadow-xl border-4 border-white pointer-events-none select-none"
               style={{ top: '20%', left: '10%' }}
             />
             <span className="absolute bottom-1/4 left-1/4 text-base font-semibold text-gray-800 rotate-3">FRANÇA</span>
             <img 
-              src={featuredImages[1]} 
+              src={imageUrl(featuredImages[1])} 
               alt="Viagem 2" 
               className="absolute w-48 h-64 object-cover -rotate-6 shadow-xl border-4 border-white pointer-events-none select-none"
               style={{ top: '10%', right: '10%' }}
