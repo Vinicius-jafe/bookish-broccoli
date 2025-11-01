@@ -241,10 +241,6 @@ function ContactCTA() {
   );
 }
 
-// Importando os novos componentes
-import { Benefits } from "./sections/Benefits";
-import { Testimonials } from "./sections/Testimonials";
-
 // === Home Page Component ===
 export function Home() {
   const [packages, setPackages] = useState([]);
