@@ -193,8 +193,38 @@ export function PackagesList() {
 
 // === NOVO FORMULÁRIO DE COTAÇÃO DETALHADO (Componente Auxiliar) ===
 function DetailedQuotationForm({ packageName }) {
-    // Usar um action diferente no RD Station se for um formulário de contato genérico.
-    const RD_IDENTIFIER = "bella-renda-cotacao-detalhada"; 
+    // Efeito para carregar o script de rastreamento do RD Station
+    useEffect(() => {
+        // Verifica se o script já existe
+        if (!document.querySelector('script[src*="loader-scripts/e472b6d1-b803-41d3-a4f8-9e9a6b2cbac0-loader"]')) {
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.async = true;
+            script.src = 'https://d335luupugsy2.cloudfront.net/js/loader-scripts/e472b6d1-b803-41d3-a4f8-9e9a6b2cbac0-loader.js';
+            document.body.appendChild(script);
+        }
+
+        // Configura o formulário do RD Station
+        if (typeof RDStationForms === 'undefined') {
+            const formScript = document.createElement('script');
+            formScript.src = 'https://d335luupugsy2.cloudfront.net/js/rdstation-forms/stable/rdstation-forms.min.js';
+            formScript.onload = function() {
+                new RDStationForms('teste-304de8f79f849b27c1ba', 'null').createForm();
+            };
+            document.body.appendChild(formScript);
+        } else {
+            new RDStationForms('teste-304de8f79f849b27c1ba', 'null').createForm();
+        }
+
+        // Limpeza ao desmontar o componente
+        return () => {
+            // Remove o script de rastreamento se necessário
+            const script = document.querySelector('script[src*="loader-scripts/e472b6d1-b803-41d3-a4f8-9e9a6b2cbac0-loader"]');
+            if (script) {
+                document.body.removeChild(script);
+            }
+        };
+    }, []);
 
     return (
         <div className="space-y-4">
@@ -208,23 +238,6 @@ function DetailedQuotationForm({ packageName }) {
 
             <div className="space-y-3 bg-primary p-6 rounded-lg shadow-xl">
                 <div role="main" id="teste-304de8f79f849b27c1ba"></div>
-                <script type="text/javascript" src="https://d335luupugsy2.cloudfront.net/js/rdstation-forms/stable/rdstation-forms.min.js"></script>
-                <script type="text/javascript">
-                    {`
-                    document.addEventListener('DOMContentLoaded', function() {
-                        if (typeof RDStationForms !== 'undefined') {
-                            new RDStationForms('teste-304de8f79f849b27c1ba', 'null').createForm();
-                        } else {
-                            const script = document.createElement('script');
-                            script.src = 'https://d335luupugsy2.cloudfront.net/js/rdstation-forms/stable/rdstation-forms.min.js';
-                            script.onload = function() {
-                                new RDStationForms('teste-304de8f79f849b27c1ba', 'null').createForm();
-                            };
-                            document.body.appendChild(script);
-                        }
-                    });
-                    `}
-                </script>
             </div>
             
             <p className="text-sm text-center text-gray-700 pt-4">
