@@ -9,7 +9,6 @@ import { AspectRatio } from "../components/ui/aspect-ratio";
 import { Separator } from "../components/ui/separator";
 import { Instagram, Youtube, Mail, Phone, MapPin, Airplay, Star, ShieldCheck } from "lucide-react";
 import { Benefits } from "./sections/Benefits";
-import { Testimonials } from "./sections/Testimonials";
 import { loadPackages as fetchPackages, imageUrl } from "../services/api"; // API real
 
 // Importando as imagens
@@ -232,25 +231,10 @@ function Row({ title, subtitle, filter, primaryColor = false }) {
   );
 }
 
-// ... (Resto do código do arquivo SiteShell.jsx)
-
-// === Contact CTA (seção do formulário - ALTERADO para ficar igual a 4.png no layout da Home) ===
+// Contact CTA section with RD Station form
 function ContactCTA() {
-  // Efeito para carregar o formulário RD Station
-  useEffect(() => {
-    // Configura o formulário do RD Station
-    if (typeof RDStationForms === 'undefined') {
-      const formScript = document.createElement('script');
-      formScript.src = 'https://d335luupugsy2.cloudfront.net/js/rdstation-forms/stable/rdstation-forms.min.js';
-      formScript.onload = function() {
-        new RDStationForms('integracao-3bd2e2520b4a83678275', 'null').createForm();
-      };
-      document.body.appendChild(formScript);
-    } else {
-     
-      new RDStationForms('integracao-3bd2e2520b4a83678275', 'null').createForm();
-    }
-  }, []);
+  // O script do RD Station é gerenciado pelo componente RDStationForm
+
   return (
     <section className="max-w-3xl mx-auto px-4 mt-16">
       <div className="text-center">
@@ -258,21 +242,69 @@ function ContactCTA() {
         <p className="text-sm text-gray-600 mt-2 max-w-2xl mx-auto">
           Fale com a nossa equipe e descubra o roteiro que vai fazer seu coração vibrar.
           Além de parcelamento facilitado, oferecemos atendimento personalizado para que sua
-          
           viagem seja leve, segura e inesquecível.
         </p>
       </div>
 
       <div className="mt-6">
-        {/* Removido o h-3 bg-primary/20 e a div de baixo para replicar o layout 4.png */}
         <div className="bg-primary px-6 py-6 rounded-lg shadow-xl">
-          <h3 className="text-white text-center mb-3">Entraremos em contato com os dados informados abaixo:</h3>
-          <div className="space-y-3 max-w-xl mx-auto">
-            <div role="main" id="integracao-3bd2e2520b4a83678275"></div>
-     
+          <h3 className="text-white text-center mb-6">Entre em contato conosco para mais informações</h3>
+          <div id="integracao-3bd2e2520b4a83678275" className="max-w-xl mx-auto">
+            <form 
+              id="form-integracao-3bd2e2520b4a83678275" 
+              className="space-y-4"
+            >
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-white mb-1">Nome</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-white mb-1">E-mail</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
+                />
+              </div>
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium text-white mb-1">Telefone</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  required
+                  className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
+                />
+              </div>
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium text-white mb-1">Mensagem</label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="3"
+                  className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
+                  placeholder="Conte-nos sobre o que você está procurando..."
+                ></textarea>
+              </div>
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full bg-white text-primary font-semibold py-2 px-4 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-colors"
+                >
+                  Enviar mensagem
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-        {/* Removido o h-3 bg-primary/20 */}
       </div>
 
       <p className="text-center text-sm text-gray-700 mt-6">
@@ -303,7 +335,7 @@ function ContactCTA() {
 export function Home() {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [featuredImages, setFeaturedImages] = useState([]);
+  const [featuredPackages, setFeaturedPackages] = useState([]);
   const placeholderImages = [
     "https://via.placeholder.com/300x400/F5A7B7/FFFFFF?text=Imagem+1",
     "https://via.placeholder.com/300x400/F5A7B7/FFFFFF?text=Imagem+2",
@@ -314,8 +346,8 @@ export function Home() {
     fetchPackages()
       .then(data => {
         setPackages(data);
-        const featured = data.filter(p => p.featuredHome).slice(0, 4).map(p => p.images?.[0]);
-        setFeaturedImages(featured.length > 0 ? featured : placeholderImages);
+        const featured = data.filter(p => p.featuredHome).slice(0, 4);
+        setFeaturedPackages(featured.length > 0 ? featured : []);
       })
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
@@ -363,10 +395,9 @@ max-w-lg"
  
           {/* Imagens sobrepostas */}
           <div className="relative h-64 md:h-96 mt-10 md:mt-0">
-            {featuredImages.slice(0, 2).map((img, index) => (
-              <div key={index} className={`absolute ${index === 0 ? 'rotate-3' : '-rotate-6'}`}
+            {featuredPackages.slice(0, 2).map((pkg, index) => (
+              <div key={pkg._id} className={`absolute ${index === 0 ? 'rotate-3' : '-rotate-6'}`}
                 style={{
-                  
                   top: index === 0 ? '20%' : '10%',
                   left: index === 0 ? '10%' : 'auto',
                   right: index === 0 ? 'auto' : '10%',
@@ -374,14 +405,13 @@ max-w-lg"
                 }}>
       
                 <img 
-                  src={imageUrl(img)} 
-                  alt={`Destino ${index + 1}`} 
+                  src={imageUrl(pkg.images?.[0] || placeholderImages[index])} 
+                  alt={pkg.title || `Destino ${index + 1}`} 
                   className="w-48 h-64 object-cover shadow-xl border-4 border-white"
                 />
          
-                <span className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-base font-semibold text-white bg-black/50 px-3 py-1 rounded-full">
-                  {index === 0 ?
-'FRANÇA' : 'ITÁLIA'}
+                <span className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-base font-semibold text-white bg-black/50 px-3 py-1 rounded-full whitespace-nowrap">
+                  {pkg.destination?.toUpperCase() || `DESTINO ${index + 1}`}
                 </span>
               </div>
             ))}
@@ -407,7 +437,7 @@ max-w-lg"
         <Row 
           title="Por mulheres" 
           subtitle="Roteiros mais procurados"
-          filter={(p)=>p.type==="internacional"}
+          filter={(p) => p.featuredHome === true}
           primaryColor={true}
         />
       </div>
@@ -469,12 +499,13 @@ max-w-lg"
         </div>
         <div className="relative z-10">
           <Row 
-            title="ROTEIROS MAIS PROCURADOS"
-      
-            subtitle="Os destinos preferidos das nossas viajantes"
-            filter="popular"
+            title="Roteiros Internacionais"
+            subtitle="Descubra destinos incríveis pelo mundo"
+            filter={(p) => p.type === 'internacional'}
+            primaryColor="hsl(208, 74%, 36%)"
+            buttonColor="hsl(210, 67%, 21%)"
           >
-            {packages.filter(pkg => pkg.isPopular).map((pkg) => (
+            {packages.filter(pkg => pkg.type === 'internacional').map((pkg) => (
               <PackageCard key={pkg.id} pkg={pkg} />
             ))}
           </Row>
@@ -513,28 +544,19 @@ max-w-lg"
         </div>
       </section>
 
-      {/* Seção de contato final */}
-      <ContactCTA />
-      
       {/* Seção de Benefícios */}
       <Benefits />
-      
-      {/* Seção de Depoimentos */}
-      <Testimonials />
       
       {/* Seção CTA Final */}
       <div className="bg-primary text-white py-16">
         <div className="max-w-3xl mx-auto text-center px-4">
           <h2 className="text-3xl font-bold mb-4">Pronta para sua próxima aventura?</h2>
           <p className="mb-8 text-primary-foreground/90">Entre em contato agora mesmo e comece a planejar sua viagem dos sonhos</p>
-          <a href="#contato">
-            <Button className="bg-white text-primary hover:bg-gray-100 px-8 py-6 text-lg">
-      
-              Fale com um especialista
-            </Button>
-          </a>
         </div>
       </div>
+      
+      {/* Seção de contato final */}
+      <ContactCTA />
     </SiteShell>
   );
 }

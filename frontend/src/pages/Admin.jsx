@@ -16,8 +16,7 @@ import {
     upsertPackage, 
     deletePackage,
     uploadPackageImages // 👈 NOVO: Função para enviar as imagens ao backend
-} from "../services/api"; 
-
+} from "../services/api";
 // ====================================================================
 // COMPONENTE PACKAGEFORM ATUALIZADO
 // ====================================================================
@@ -30,6 +29,7 @@ function PackageForm({ initial, onCancel, onSaved }) {
             title: "",
             type: "nacional",
             region: "",
+      
             destination: "",
             duration: 3,
             months: [],
@@ -37,15 +37,16 @@ function PackageForm({ initial, onCancel, onSaved }) {
             featuredHome: false,
             images: [], // Continua sendo um array de URLs/caminhos
             inclusions: [],
+        
             shortDescription: "",
             longDescription: "",
         }
     );
     const [selectedFiles, setSelectedFiles] = useState(null); // 👈 NOVO: Estado para armazenar os arquivos do input
-    const [isUploading, setIsUploading] = useState(false);   // 👈 NOVO: Estado para controle de loading
+    const [isUploading, setIsUploading] = useState(false);
+// 👈 NOVO: Estado para controle de loading
 
     const set = (k, v) => setForm((s) => ({ ...s, [k]: v }));
-
     const handleFileChange = (e) => {
         // Armazena a lista de arquivos selecionados no estado
         setSelectedFiles(e.target.files);
@@ -59,33 +60,31 @@ function PackageForm({ initial, onCancel, onSaved }) {
 
         setIsUploading(true);
         const formData = new FormData();
-        
-        // Adiciona cada arquivo ao FormData com a chave 'images' (deve coincidir com o multer)
+// Adiciona cada arquivo ao FormData com a chave 'images' (deve coincidir com o multer)
         for (let i = 0; i < selectedFiles.length; i++) {
             formData.append('images', selectedFiles[i]);
         }
 
         try {
             // Chama a nova função da API
-            const result = await uploadPackageImages(formData); 
+            const result = await uploadPackageImages(formData);
             toast({ title: "Upload Concluído", description: `${result.paths.length} imagens enviadas.` });
             
             // Retorna os novos caminhos para serem adicionados ao form.images
-            return result.paths; 
+            return result.paths;
         } catch (err) {
             console.error("Erro no upload de imagens:", err);
             toast({ title: "Erro no Upload", description: err.message || "Falha ao enviar arquivos." });
             return null;
         } finally {
             setIsUploading(false);
-            setSelectedFiles(null); // Limpa o estado de arquivos após a tentativa
+            setSelectedFiles(null);
+// Limpa o estado de arquivos após a tentativa
         }
     };
-
     const submit = async (e) => {
         e.preventDefault();
-        
-        // 1. Processar o Upload de Imagens (se houver arquivos novos)
+// 1. Processar o Upload de Imagens (se houver arquivos novos)
         let finalImagePaths = form.images;
         if (selectedFiles && selectedFiles.length > 0) {
             const uploadedPaths = await handleUploadImages();
@@ -94,16 +93,17 @@ function PackageForm({ initial, onCancel, onSaved }) {
                 finalImagePaths = [...form.images, ...uploadedPaths];
             } else {
                 // Se o upload falhar, aborta o salvamento do pacote
-                return; 
+                return;
             }
         }
 
         // 2. Lógica para slugify, campos numéricos, etc. (mantida)
-        let finalSlug = form.slug || (form.title ? form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") : "");
+        let finalSlug = form.slug ||
+(form.title ? form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") : "");
         
-        let finalDuration = typeof form.duration === "string" ? parseInt(form.duration || "0", 10) : form.duration;
+        let finalDuration = typeof form.duration === "string" ?
+parseInt(form.duration || "0", 10) : form.duration;
         let finalPriceFrom = typeof form.priceFrom === "string" ? parseFloat(form.priceFrom || "0") : form.priceFrom;
-        
         const finalForm = {
             ...form,
             slug: finalSlug,
@@ -111,8 +111,7 @@ function PackageForm({ initial, onCancel, onSaved }) {
             priceFrom: finalPriceFrom,
             images: finalImagePaths, // 👈 Usa a lista de paths atualizada
         };
-
-        // 3. Salvar o Pacote
+// 3. Salvar o Pacote
         try {
             await upsertPackage(finalForm);
             toast({ title: "Pacote salvo", description: finalForm.title });
@@ -122,84 +121,98 @@ function PackageForm({ initial, onCancel, onSaved }) {
             toast({ title: "Erro ao salvar pacote" });
         }
     };
-
     return (
         <form onSubmit={submit} className="grid md:grid-cols-2 gap-4">
             {/* ... Campos existentes (Título, Slug, Tipo, Região, Destino, Duração, Preço, Meses) ... */}
             <div>
                 <label className="text-sm">Título</label>
                 <Input
+                 
                     value={form.title}
                     onChange={(e) => set("title", e.target.value)}
                     required
                 />
             </div>
             <div>
+              
                 <label className="text-sm">Slug</label>
                 <Input
                     value={form.slug}
                     onChange={(e) => set("slug", e.target.value)}
                     placeholder="auto"
                 />
+  
             </div>
             <div>
                 <label className="text-sm">Tipo</label>
                 <Select value={form.type} onValueChange={(v) => set("type", v)}>
                     <SelectTrigger>
+                    
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="nacional">Nacional</SelectItem>
                         <SelectItem value="internacional">Internacional</SelectItem>
+     
                     </SelectContent>
                 </Select>
             </div>
             <div>
                 <label className="text-sm">Região</label>
                 <Input
+            
                     value={form.region}
                     onChange={(e) => set("region", e.target.value)}
                 />
             </div>
             <div>
                 <label className="text-sm">Destino</label>
+            
                 <Input
                     value={form.destination}
                     onChange={(e) => set("destination", e.target.value)}
                 />
             </div>
             <div>
+             
                 <label className="text-sm">Duração (dias)</label>
                 <Input
                     type="number"
                     min={1}
                     max={30}
+                   
                     value={form.duration}
                     onChange={(e) => set("duration", e.target.value)}
                 />
             </div>
             <div>
                 <label className="text-sm">Meses (separe por vírgula)</label>
+                
                 <Input
-                    value={(form.months || []).join(",")}
+                    value={(form.months ||
+[]).join(",")}
                     onChange={(e) =>
                         set(
                             "months",
+                           
                             e.target.value
                                 .split(",")
                                 .map((s) => s.trim())
                                 .filter(Boolean)
+ 
                         )
                     }
                 />
             </div>
             <div>
-                <label className="text-sm">Preço a partir de</label>
+                <label 
+className="text-sm">Preço a partir de</label>
                 <Input
                     type="number"
                     min={0}
                     step="0.01"
                     value={form.priceFrom}
+ 
                     onChange={(e) => set("priceFrom", e.target.value)}
                 />
             </div>
@@ -207,90 +220,108 @@ function PackageForm({ initial, onCancel, onSaved }) {
             {/* ------------------------------------------------------------------- */}
             {/* 🎯 NOVO CAMPO: UPLOAD DE ARQUIVOS */}
             {/* ------------------------------------------------------------------- */}
+   
             <div className="md:col-span-2">
                 <label className="text-sm block">Enviar Novas Imagens</label>
                 <Input
                     type="file"
                     multiple // Permite a seleção de múltiplos arquivos
+       
                     accept="image/jpeg,image/png,image/gif" // Aceita apenas tipos de imagem
                     onChange={handleFileChange}
                 />
                 {selectedFiles && (
                     <p className="text-xs text-muted-foreground mt-1">
+    
                         Arquivos selecionados: **{selectedFiles.length}**
                     </p>
                 )}
             </div>
 
             {/* ------------------------------------------------------------------- */}
-            {/* CAMPO DE IMAGENS EXISTENTES (Apenas visualização/remoção de paths) */}
+            {/* CAMPO DE IMAGENS 
+EXISTENTES (Apenas visualização/remoção de paths) */}
             {/* ------------------------------------------------------------------- */}
             <div className="md:col-span-2">
                 <label className="text-sm">Imagens Existentes (Paths)</label>
                 <Textarea
-                    value={(form.images || []).join("\n")} // Mostra um path por linha
+                    value={(form.images ||
+[]).join("\n")} // Mostra um path por linha
                     placeholder="Os caminhos das imagens salvas aparecerão aqui. Edite para remover."
                     onChange={(e) =>
                         set(
                             "images",
                             e.target.value
+                   
                                 .split("\n") // Divide por quebra de linha
                                 .map((s) => s.trim())
                                 .filter(Boolean)
+               
                         )
                     }
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                    Se você enviar novas imagens, os caminhos serão adicionados acima. Edite este campo para remover imagens existentes.
+                    Se você enviar novas imagens, os caminhos serão adicionados acima.
+                    Edite este campo para remover imagens existentes.
                 </p>
             </div>
             {/* ... Demais campos existentes (Inclusões, Descrições) ... */}
             <div className="md:col-span-2">
                 <label className="text-sm">Inclusões (separe por vírgula)</label>
                 <Input
+            
                     value={(form.inclusions || []).join(",")}
                     onChange={(e) =>
                         set(
                             "inclusions",
+                 
                             e.target.value
                                 .split(",")
                                 .map((s) => s.trim())
+                       
                                 .filter(Boolean)
                         )
                     }
                 />
             </div>
             <div className="md:col-span-2">
+      
                 <label className="text-sm">Descrição curta</label>
                 <Input
                     value={form.shortDescription}
                     onChange={(e) => set("shortDescription", e.target.value)}
                 />
             </div>
+ 
             <div className="md:col-span-2">
                 <label className="text-sm">Descrição longa</label>
                 <Textarea
                     value={form.longDescription}
                     onChange={(e) => set("longDescription", e.target.value)}
+           
                 />
             </div>
             <div className="flex items-center gap-2 md:col-span-2">
                 <input
                     id="featuredHome"
                     type="checkbox"
+           
                     checked={!!form.featuredHome}
                     onChange={(e) => set("featuredHome", e.target.checked)}
                 />
                 <label htmlFor="featuredHome" className="text-sm">
                     Destaque na Home
+            
                 </label>
             </div>
             <div className="md:col-span-2 flex justify-end gap-2">
                 <Button type="button" variant="secondary" onClick={onCancel} disabled={isUploading}>
                     Cancelar
                 </Button>
+            
                 <Button type="submit" disabled={isUploading}>
-                    {isUploading ? "Enviando Imagens..." : "Salvar Pacote"}
+                    {isUploading ?
+"Enviando Imagens..." : "Salvar Pacote"}
                 </Button>
             </div>
         </form>
@@ -310,16 +341,14 @@ export default function Admin() {
   const [editing, setEditing] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [data, setData] = useState([]);
-
-  // 🔄 Carregar pacotes do backend
+// 🔄 Carregar pacotes do backend
   useEffect(() => {
     if (logged) {
         loadPackages()
         .then(setData)
         .catch((err) => console.error("Erro ao carregar pacotes:", err));
     }
-  }, [logged]); 
-
+  }, [logged]);
   const doLogin = async (e) => {
     e.preventDefault();
     const ok = await loginAdmin(email, password);
@@ -333,25 +362,21 @@ export default function Admin() {
       toast({ title: "Credenciais inválidas" });
     }
   };
-
   const doLogout = () => {
     logoutAdmin();
     setLogged(false);
     nav("/");
   };
-
   const startEdit = (pkg) => {
     setEditing(pkg || null);
     setShowForm(true);
   };
-
   const onSaved = async () => {
     const list = await loadPackages();
     setData(list);
     setShowForm(false);
     setEditing(null);
   };
-
   if (!logged) {
     return (
       <SiteShell>
@@ -361,6 +386,7 @@ export default function Admin() {
             <div>
               <label className="text-sm">Email</label>
               <Input
+        
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -368,12 +394,14 @@ export default function Admin() {
               />
             </div>
             <div>
-              <label className="text-sm">Senha</label>
+    
+                <label className="text-sm">Senha</label>
               <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+         
               />
             </div>
             <Button type="submit" className="w-full">
@@ -381,6 +409,7 @@ export default function Admin() {
             </Button>
             <div className="text-xs text-muted-foreground">
               Use admin@site.com / admin123
+            
             </div>
           </form>
         </div>
@@ -397,6 +426,7 @@ export default function Admin() {
             <Button variant="secondary" onClick={() => startEdit(null)}>
               Novo pacote
             </Button>
+    
             <Button onClick={doLogout}>Sair</Button>
           </div>
         </div>
@@ -406,6 +436,7 @@ export default function Admin() {
             <PackageForm
               initial={editing}
               onCancel={() => {
+         
                 setShowForm(false);
                 setEditing(null);
               }}
@@ -415,24 +446,28 @@ export default function Admin() {
         )}
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+      
           {data.map((p) => (
             <Card key={p.id} className="p-4">
               <div className="font-medium line-clamp-2">{p.title}</div>
               <div className="text-xs text-muted-foreground mt-1">
                 {p.destination} • {p.type} • R${" "}
                 {p.priceFrom?.toLocaleString("pt-BR")}
-              </div>
+          
+            </div>
               <div className="flex gap-2 mt-3">
                 <Button
                   size="sm"
                   variant="secondary"
                   onClick={() => startEdit(p)}
+       
                 >
                   Editar
                 </Button>
                 <Button
                   size="sm"
                   variant="destructive"
+     
                   onClick={async () => {
                     await deletePackage(p.id);
                     toast({ title: "Excluído" });
@@ -446,7 +481,229 @@ export default function Admin() {
             </Card>
           ))}
         </div>
+      
       </section>
     </SiteShell>
   );
+}
+
+
+// === FORMULÁRIO DE COTAÇÃO DETALHADO ===
+function DetailedQuotationForm({ packageName }) {
+    // O script do RD Station é gerenciado pelo componente RDStationForm
+
+    return (
+        <div className="space-y-4">
+            {/* Título principal do formulário */}
+            <h2 className="text-xl font-bold text-center text-primary-foreground">
+                Está preparada para dizer <span className="text-white">sim para você?</span>
+            </h2>
+
+            {/* Subtítulo */}
+            <p className="text-sm text-center text-white/80 mb-6">
+                Fale com a nossa equipe e descubra o roteiro que vai fazer seu coração vibrar.
+                Além de parcelamento facilitado, oferecemos atendimento personalizado.
+            </p>
+
+            {/* Formulário RD Station */}
+            <div id="integracao-3bd2e2520b4a83678275" className="space-y-4">
+                <form className="space-y-4">
+                    <input type="hidden" name="pacoteTitulo" value={packageName} />
+                    <div>
+                        <label htmlFor="name" className="block text-sm font-medium text-white mb-1">Nome</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            required
+                            className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-white mb-1">E-mail</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            required
+                            className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="phone" className="block text-sm font-medium text-white mb-1">Telefone</label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            required
+                            className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="message" className="block text-sm font-medium text-white mb-1">Mensagem</label>
+                        <textarea
+                            id="message"
+                            name="message"
+                            rows="3"
+                            className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
+                            placeholder="Conte-nos sobre o que você está procurando..."
+                            defaultValue={`Gostaria de mais informações sobre o pacote: ${packageName}`}
+                        ></textarea>
+                    </div>
+                    <div className="pt-2">
+                        <button
+                            type="submit"
+                            className="w-full bg-white text-primary font-semibold py-2 px-4 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-colors"
+                        >
+                            Enviar mensagem
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            {/* Rodapé do formulário */}
+            <p className="text-sm text-center text-white/70 mt-4">
+                Porque viajar é autocuidado, é liberdade, é reencontrar quem você é 
+                e o mundo espera.
+            </p>
+        </div>
+    );
+}
+
+// === DETALHE DO PACOTE (MODIFICADO para usar o novo formulário) ===
+export function PackageDetail() {
+    // ... código restante de PackageDetail
+    // ... mantido para completude do arquivo Packages.jsx ...
+    const { slug } = useParams();
+    const nav = useNavigate();
+    // setPkg para null (carregando) e false (não encontrado)
+    const [pkg, setPkg] = useState(null);
+    useEffect(() => {
+        async function fetchPackage() {
+            try {
+                const found = await loadPackageBySlug(slug);
+            
+                if (!found) {
+                    toast({ title: "Pacote não encontrado" });
+                }
+                setPkg(found || false); // Se não encontrar, setar como false
+            } catch (err) {
+                console.error("Erro ao buscar pacote:", err);
+                toast({ title: "Erro ao buscar pacote" });
+                setPkg(false); // Em caso de erro, setar como não encontrado
+            }
+        }
+        fetchPackage();
+    
+    }, [slug]);
+
+    if (pkg === null) {
+        return (
+            <SiteShell>
+                <div className="max-w-4xl mx-auto px-4 py-12 text-center">
+                    <h1 className="text-2xl font-semibold">Carregando...</h1>
+                </div>
+            </SiteShell>
+        );
+    }
+
+    if (pkg === false) { // Verifica se é false (não encontrado/erro)
+        return (
+            <SiteShell>
+                <div className="max-w-4xl mx-auto px-4 py-12 text-center">
+                    <h1 className="text-2xl font-semibold">Pacote não encontrado</h1>
+                    <Button className="mt-4 bg-primary hover:bg-primary/90" onClick={() => nav("/pacotes")}>Voltar para pacotes</Button>
+                </div>
+            </SiteShell>
+        );
+    }
+
+    return (
+        <SiteShell>
+            <div className="bg-white">
+                <section className="max-w-6xl mx-auto px-4 py-8">
+                    <Button 
+                        variant="ghost" 
+                        onClick={() => nav(-1)}
+                        className="mb-4 flex items-center gap-2 text-sm"
+                    >
+           
+                        <ArrowLeft className="h-4 w-4" /> Voltar para pacotes
+                    </Button>
+          
+                    <div className="grid md:grid-cols-3 gap-8">
+                        <div className="md:col-span-2 space-y-6">
+                            <PackageCarousel images={pkg.images} title={pkg.title} />
+              
+                            <div 
+                                className="bg-white p-6 rounded-lg shadow-sm border">
+                                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{pkg.title}</h1>
+                
+                                <div className="flex items-center gap-2 mt-2 text-muted-foreground text-sm">
+                                    <span>{pkg.destination}</span>
+                                    <span>•</span>
+  
+                                    <span>{pkg.duration} dias</span>
+                                    {pkg.region && (
+                                        <>
+                                            <span>•</span>
+                     
+                                            <span className="capitalize">{pkg.region}</span>
+                                        </>
+                                    )}
+                                </div>
+                
+                                <div className="mt-6">
+           
+                                    <div className="text-2xl font-bold text-primary">
+                                        A partir de R$ {pkg.priceFrom?.toLocaleString("pt-BR")}
+                                    </div>
+                  
+                                    {pkg.inclusions?.length > 0 && (
+        
+                                        <div className="mt-4">
+                                            <h3 className="font-semibold text-gray-900 mb-2">Inclui:</h3>
+                                            <ul className="space-y-1 text-sm text-gray-600">
+                                                {pkg.inclusions.map((item, i) => (
+          
+                                                    <li key={i} className="flex items-start">
+                                                        <span className="text-green-500 mr-2">✓</span>
+                                                        <span>{item}</span>
+                       
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
+             
+                                </div>
+                
+                                {pkg.longDescription && (
+                                    <div className="mt-8 pt-6 border-t">
+                                        <h3 className="font-semibold text-gray-900 mb-3">Sobre este pacote</h3>
+                 
+                                        <p className="text-gray-600 leading-relaxed">
+                                            {pkg.longDescription}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+     
+                        </div>
+
+                        {/* Formulário de cotação */}
+                        <div className="sticky top-4 h-fit">
+                            <Card className="border border-gray-200 shadow-lg overflow-hidden">
+                                {/* Removido o header simples, o DetailedQuotationForm renderiza todo o bloco da imagem 4.png */}
+                                <div className="p-4"> 
+                                    <DetailedQuotationForm packageName={pkg.title} />
+                                </div>
+            
+                            </Card>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </SiteShell>
+    );
 }

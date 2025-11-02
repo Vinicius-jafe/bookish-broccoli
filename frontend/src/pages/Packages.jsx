@@ -1,9 +1,8 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input"; // Certifique-se desta importação
-import { Textarea } from "../components/ui/textarea"; // Certifique-se desta importação
-
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -16,57 +15,50 @@ import { ToggleGroup, ToggleGroupItem } from "../components/ui/toggle-group";
 import { Card } from "../components/ui/card";
 import { toast } from "../hooks/use-toast";
 import { AspectRatio } from "../components/ui/aspect-ratio";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious
+} from "../components/ui/carousel";
 import { SiteShell, PackageCard } from "../components/SiteShell"; 
-import { loadPackages, loadPackageBySlug } from "../services/api"; // Ajustado para services/api
-import { months as monthList } from "../constants/months"; // Assumindo que você moveu os meses para um arquivo separado
+import { loadPackages, loadPackageBySlug, imageUrl } from "../services/api";
+import { months as monthList } from "../constants/months";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { imageUrl } from "../services/api";
+import RDStationForm from "../components/RDStationForm";
 
-// ... useQuery e PackageCarousel (MANTIDOS) ...
+// Hook para ler query params
 function useQuery() {
   const { search } = useLocation();
   return React.useMemo(() => new URLSearchParams(search), [search]);
 }
 
+// Componente de carrossel isolado
 function PackageCarousel({ images = [], title }) {
-  const [index, setIndex] = useState(0);
   if (!images.length) return null;
-
-  const prev = () => setIndex((i) => (i - 1 + images.length) % images.length);
-  const next = () => setIndex((i) => (i + 1) % images.length);
-
   return (
-    <div className="relative">
-      <AspectRatio ratio={16 / 9}>
-        <img
-          src={imageUrl(images[index])}
-          alt={`${title}-${index}`}
-          className="w-full h-full object-cover rounded-md"
-        />
-      </AspectRatio>
-      <Button
-        variant="outline"
-        size="icon"
-        className="absolute left-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full"
-        onClick={prev}
-        aria-label="Imagem anterior"
-      >
-        <ArrowLeft className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="outline"
-        size="icon"
-        className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full"
-        onClick={next}
-        aria-label="Próxima imagem"
-      >
-        <ArrowRight className="h-4 w-4" />
-      </Button>
-    </div>
+    <Carousel>
+      <CarouselContent>
+        {images.map((src, idx) => (
+          <CarouselItem key={idx} className="pr-4">
+            <AspectRatio ratio={16 / 9}>
+              <img
+                src={imageUrl(src)}
+                alt={`${title}-${idx}`}
+                className="w-full h-full object-cover rounded-md"
+              />
+            </AspectRatio>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious />
+      <CarouselNext />
+    </Carousel>
   );
 }
 
-// ... PackagesList (MANTIDO, mas usando a nova cor primária nos botões) ...
+// Lista de pacotes
 export function PackagesList() {
   const nav = useNavigate();
   const query = useQuery();
@@ -168,7 +160,7 @@ export function PackagesList() {
             />
 
             <Button 
-              className="mt-4 w-full bg-primary hover:bg-primary/90" 
+              className="mt-4 w-full" 
               onClick={() => nav(`/pacotes?tipo=${type}`)}>
               Aplicar filtros
             </Button>
@@ -191,91 +183,55 @@ export function PackagesList() {
   );
 }
 
-// === FORMULÁRIO DE COTAÇÃO DETALHADO ===
-function DetailedQuotationForm({ packageName }) {
-    useEffect(() => {
-        // Configura o formulário do RD Station
-        if (typeof RDStationForms === 'undefined') {
-            const formScript = document.createElement('script');
-            formScript.src = 'https://d335luupugsy2.cloudfront.net/js/rdstation-forms/stable/rdstation-forms.min.js';
-            formScript.onload = function() {
-                new RDStationForms('integracao-3bd2e2520b4a83678275', 'null').createForm();
-            };
-            document.body.appendChild(formScript);
-        } else {
-            new RDStationForms('integracao-3bd2e2520b4a83678275', 'null').createForm();
-        }
-    }, []);
 
-    return (
-        <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-center">
-                Está preparada para dizer <span className="text-primary">sim para você?</span>
-            </h2>
-            <p className="text-sm text-center text-muted-foreground mb-4">
-                Fale com a nossa equipe e descubra o roteiro que vai fazer seu coração vibrar.
-                Além de parcelamento facilitado, oferecemos atendimento personalizado.
-            </p>
-
-            <div className="space-y-3 bg-primary p-6 rounded-lg shadow-xl">
-                <div role="main" id="integracao-3bd2e2520b4a83678275"></div>
-            </div>
-            
-            <p className="text-sm text-center text-gray-700 pt-4">
-                Porque viajar é autocuidado, é liberdade, é reencontrar quem você é 
-                e o mundo espera.
-            </p>
-        </div>
-    );
-}
-
-// === DETALHE DO PACOTE (MODIFICADO para usar o novo formulário) ===
+// Detalhe do pacote
 export function PackageDetail() {
-  const { slug } = useParams();
-  const nav = useNavigate();
-  // setPkg para null (carregando) e false (não encontrado)
-  const [pkg, setPkg] = useState(null); 
+  const { slug } = useParams();
+  const nav = useNavigate();
+  const [pkg, setPkg] = useState(null);
 
-  useEffect(() => {
-    async function fetchPackage() {
-      try {
-        const found = await loadPackageBySlug(slug);
-        
-        if (!found) {
-          toast({ title: "Pacote não encontrado" });
-        }
-        setPkg(found || false); // Se não encontrar, setar como false
-      } catch (err) {
-        console.error("Erro ao buscar pacote:", err);
-        toast({ title: "Erro ao buscar pacote" });
-        setPkg(false); // Em caso de erro, setar como não encontrado
-      }
-    }
-    fetchPackage();
-  }, [slug]);
+  useEffect(() => {
+    async function fetchPackage() {
+      try {
+        const found = await loadPackageBySlug(slug);
+        
+        if (!found) {
+          toast({ title: "Pacote não encontrado" });
+        }
+        setPkg(found || false);
+      } catch (err) {
+        console.error("Erro ao buscar pacote:", err);
+        toast({ title: "Erro ao buscar pacote" });
+        setPkg(false);
+      }
+    }
+    fetchPackage();
+  }, [slug]);
 
-  if (pkg === null) {
-    return (
-      <SiteShell>
-        <div className="max-w-4xl mx-auto px-4 py-12 text-center">
-          <h1 className="text-2xl font-semibold">Carregando...</h1>
-        </div>
-      </SiteShell>
-    );
-  }
+  if (pkg === null) {
+    return (
+      <SiteShell>
+        <div className="max-w-4xl mx-auto px-4 py-12 text-center">
+          <h1 className="text-2xl font-semibold">Carregando...</h1>
+        </div>
+      </SiteShell>
+    );
+  }
 
-  if (pkg === false) { // Verifica se é false (não encontrado/erro)
-    return (
-      <SiteShell>
-        <div className="max-w-4xl mx-auto px-4 py-12 text-center">
-          <h1 className="text-2xl font-semibold">Pacote não encontrado</h1>
-          <Button className="mt-4 bg-primary hover:bg-primary/90" onClick={() => nav("/pacotes")}>Voltar para pacotes</Button>
-        </div>
-      </SiteShell>
-    );
-  }
+  if (pkg === false) {
+    return (
+      <SiteShell>
+        <div className="max-w-4xl mx-auto px-4 py-12 text-center">
+          <h1 className="text-2xl font-semibold">Pacote não encontrado</h1>
+          <Button className="mt-4" onClick={() => nav("/pacotes")}>
+            Voltar para pacotes
+          </Button>
+        </div>
+      </SiteShell>
+    );
+  }
 
-  return (
+  return (
     <SiteShell>
       <div className="bg-white">
         <section className="max-w-6xl mx-auto px-4 py-8">
@@ -337,7 +293,7 @@ export function PackageDetail() {
               </div>
             </div>
 
-            {/* Formulário de cotação */}
+            {/* Formulário de contato */}
             <div className="sticky top-4 h-fit">
               <Card className="border border-gray-200 shadow-lg overflow-hidden">
                 <div className="bg-primary p-4 text-white">
@@ -345,7 +301,12 @@ export function PackageDetail() {
                   <p className="text-sm opacity-90">Preencha o formulário abaixo</p>
                 </div>
                 <div className="p-4">
-                  <DetailedQuotationForm packageName={pkg.title} />
+                  <div className="space-y-4">
+                    <RDStationForm />
+                    <p className="text-xs text-muted-foreground text-center">
+                      Ao preencher o formulário, você concorda em receber comunicações da Bella Renda & Viagens.
+                    </p>
+                  </div>
                 </div>
               </Card>
             </div>
