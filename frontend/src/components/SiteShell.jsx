@@ -19,30 +19,34 @@ import icLib3 from '../images/IC-LIB-3.png';
 // === NavBar Component ===
 export function NavBar() {
   const nav = useNavigate();
-return (
+  return (
     <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="flex items-center">
-          {/* Logo principal */}
-          <img 
-            src={logoFinal} 
-            alt="Bella Renda & Viagens" 
-            
-            className="h-16 w-auto" 
-          />
-        </Link>
-        <nav className="hidden md:flex gap-6 text-sm items-center">
-          <Link className="hover:text-primary" to="/">Início</Link>
-          <a className="hover:text-primary" href="#sobre">Sobre</a>
-          <Link className="hover:text-primary" to="/pacotes">Roteiros</Link>
-          <a href="#contato">
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-5">
-   
-              Contatos
-            </Button>
-          </a>
-        </nav>
-        <Link to="/admin" className="text-sm">Admin</Link>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <Link to="/" className="flex-shrink-0">
+            <img 
+              src={logoFinal} 
+              alt="Bella Renda & Viagens" 
+              className="h-16 w-auto" 
+            />
+          </Link>
+          
+          <div className="flex items-center space-x-8">
+            <nav className="hidden md:flex items-center space-x-8">
+              <Link className="text-gray-700 hover:text-primary transition-colors" to="/">Início</Link>
+              <a className="text-gray-700 hover:text-primary transition-colors" href="#sobre">Sobre</a>
+              <Link className="text-gray-700 hover:text-primary transition-colors" to="/pacotes">Roteiros</Link>
+            </nav>
+            <div className="flex items-center space-x-4">
+              <a href="#contato" className="hidden md:block">
+                <Button className="bg-primary hover:bg-primary/90 text-white rounded-full px-6">
+                  Contatos
+                </Button>
+              </a>
+              <Link to="/admin" className="text-sm text-gray-600 hover:text-primary">Admin</Link>
+            </div>
+          </div>
+        </div>
       </div>
     </header>
   );
@@ -174,12 +178,20 @@ function Row({ title, subtitle, filter, primaryColor = false }) {
       </div>
     </section>
   );
-  // ALTERADO: Header principal com a cor primária (rosa) e a variante light com gradiente (para "pelo Brasil")
-  const headerClasses = primaryColor ? "bg-primary text-white" : "bg-primary/20 text-primary"; 
+  // Usar a cor primária personalizada se for fornecida, senão usar a cor padrão do tema
+  const headerStyle = typeof primaryColor === 'string' 
+    ? { backgroundColor: primaryColor, color: 'white' }
+    : primaryColor === true
+    ? { backgroundColor: 'hsl(340, 45%, 54%)', color: 'white' } // Cor rosa padrão
+    : {};
+    
   return (
     <section className="max-w-6xl mx-auto px-4 mt-12">
       {/* Removido o rounded-t-lg e a borda de baixo para ficar igual às imagens */}
-      <div className={`p-4 flex items-center justify-between relative ${headerClasses}`}>
+      <div 
+        className={`p-4 flex items-center justify-between relative ${!primaryColor ? 'bg-primary/20 text-primary' : ''}`}
+        style={headerStyle}
+      >
         <div>
           {subtitle && <p className="text-sm opacity-80">{subtitle}</p>}
           <h2 className="text-xl md:text-2xl font-semibold">{title}</h2>
@@ -198,21 +210,10 @@ function Row({ title, subtitle, filter, primaryColor = false }) {
             Ver todos
           </Button>
         </Link>
-        {/* Adicionando a imagem de libélula no canto direito (Apenas para a seção principal - rosa) */}
-        {primaryColor && 
-          <img 
-            src={icLibVoando} 
-            alt="Libélula" 
-            className="absolute top-0 right-0 h-28 w-28 text-white/60 transform rotate-12 drop-shadow hidden md:block" 
-            style={{ top: '-1rem', right: '-1.5rem', transform: 'scaleX(-1) rotate(12deg)' }} 
-          />
-        }
       </div>
-      {/* Removida a borda para ficar igual às imagens (os cards já têm shadow/border) */}
       <div className="p-4 pt-6">
         <Carousel className="w-full">
           <CarouselContent>
-            {/* LINHA 214 ORIGINALMENTE DAVA ERRO. CORRIGIDO ASSIM: */}
             {pkgs.map((p) => (
               <CarouselItem key={p.id} className="basis-full sm:basis-1/2 md:basis-1/3 pr-4">
                 <PackageCard pkg={p} compact={true} />
@@ -336,12 +337,6 @@ export function Home() {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [featuredPackages, setFeaturedPackages] = useState([]);
-  const placeholderImages = [
-    "https://via.placeholder.com/300x400/F5A7B7/FFFFFF?text=Imagem+1",
-    "https://via.placeholder.com/300x400/F5A7B7/FFFFFF?text=Imagem+2",
-    "https://via.placeholder.com/300x400/F5A7B7/FFFFFF?text=Imagem+3",
-    "https://via.placeholder.com/300x400/F5A7B7/FFFFFF?text=Imagem+4",
-  ];
   useEffect(() => {
     fetchPackages()
       .then(data => {
@@ -356,27 +351,36 @@ export function Home() {
     <SiteShell>
       {/* 1. HERO SECTION */}
       <section className="relative bg-white border-b overflow-hidden">
-        {/* Apenas a libélula */}
+        {/* Background Image */}
         <div className="absolute inset-0 z-0">
+          <img 
+            src={require('../images/png_muito.png')} 
+            alt="" 
+            className="w-full h-full object-cover"
+            style={{
+              opacity: 0.5
+            }}
+          />
+        </div>
+        
+        {/* libelula Image */}
+        <div className="absolute inset-0 z-5 pointer-events-none">
           <img 
             src={icLibVoando} 
             alt="" 
-            className="absolute w-1/2 h-auto 
-max-w-lg"
+            className="absolute w-40 h-auto md:w-48 lg:w-56"
             style={{
-              transform: 'scaleX(-1)',
+              scale: '6',
               top: '50%',
-              right: '5%',
-              transformOrigin: 'center',
-              maxHeight: '90%',
-             
-              opacity: 0.7
+              right: '35%',
+              transform: 'scaleX(-1) rotate(10deg)',
+              opacity: 0.9
             }}
           />
         </div>
         
         <div className="max-w-6xl mx-auto px-4 py-16 md:py-24 grid md:grid-cols-2 gap-10 items-center relative z-10">
-          <div className="text-gray-800">
+          <div className="text-gray-800 relative z-10">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
             
               Viajar não é apenas <br /> um destino, é um <span className="text-primary">encontro com você!</span>
@@ -425,15 +429,7 @@ max-w-lg"
         <div className="absolute top-1/2 w-full border-t border-dashed border-primary/50"></div>
       </div>
 
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10">
-          <img 
-            src={icLibVoando1} 
-            alt="" 
-            className="w-full h-full object-cover opacity-5"
-          
-          />
-        </div>
+      <div className="relative">
         <Row 
           title="Por mulheres" 
           subtitle="Roteiros mais procurados"
@@ -442,11 +438,16 @@ max-w-lg"
         />
       </div>
 
-      {/* Banner entre listas (Fundo da imagem 3.jpg) */}
+      {/* Banner entre listas com imagem local */}
       <section className="max-w-6xl mx-auto px-4 mt-8">
-     
-        <div className="rounded overflow-hidden bg-cover bg-center h-40 md:h-52 flex items-center" style={{backgroundImage:"url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1200&auto=format&fit=crop')"}}>
-          <div className="bg-white/85 w-full h-full flex items-center">
+        <div className="rounded overflow-hidden bg-cover bg-center h-40 md:h-52 flex items-center relative">
+          <img 
+            src={require('../images/png_muito.png')} 
+            alt="" 
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="bg-white/85 w-full h-full flex items-center relative z-10">
             <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-4 items-center w-full">
               <div className="flex items-center gap-4">
                 <img 
@@ -454,7 +455,6 @@ max-w-lg"
                   alt="Bella Renda & Viagens" 
                   className="h-12 w-auto opacity-90"
                 />
-                <div className="text-2xl font-serif text-primary">Bella renda & viagens</div>
               </div>
       
               <div className="md:col-span-2 text-xl md:text-2xl font-medium">
@@ -482,21 +482,10 @@ max-w-lg"
             className="w-full h-full object-cover opacity-5"
           />
         </div>
-        <div className="relative z-10">
-          <Benefits />
-        </div>
       </div>
 
       {/* Popular Packages */}
       <div className="relative overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <img 
-          
-            src={icLibVoando1} 
-            alt="" 
-            className="w-full h-full object-cover opacity-10"
-          />
-        </div>
         <div className="relative z-10">
           <Row 
             title="Roteiros Internacionais"
@@ -546,14 +535,6 @@ max-w-lg"
 
       {/* Seção de Benefícios */}
       <Benefits />
-      
-      {/* Seção CTA Final */}
-      <div className="bg-primary text-white py-16">
-        <div className="max-w-3xl mx-auto text-center px-4">
-          <h2 className="text-3xl font-bold mb-4">Pronta para sua próxima aventura?</h2>
-          <p className="mb-8 text-primary-foreground/90">Entre em contato agora mesmo e comece a planejar sua viagem dos sonhos</p>
-        </div>
-      </div>
       
       {/* Seção de contato final */}
       <ContactCTA />

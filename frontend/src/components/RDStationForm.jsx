@@ -1,10 +1,10 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 
 const RDStationForm = ({ packageName = '' }) => {
+  const [formError, setFormError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const formRef = useRef(null);
   const scriptLoaded = useRef(false);
-
-  // Referência para o script do RD Station
   const scriptRef = useRef(null);
 
   // Função para inicializar o formulário
@@ -20,9 +20,13 @@ const RDStationForm = ({ packageName = '' }) => {
             autoRender: false // Desativa a renderização automática
           };
           formRef.current.setAttribute('data-rd-form-initialized', 'true');
+          setFormError(false);
         }
       } catch (error) {
         console.error('Erro ao inicializar o formulário do RD Station:', error);
+        setFormError(true);
+      } finally {
+        setIsLoading(false);
       }
     }
   }, []);
@@ -44,13 +48,17 @@ const RDStationForm = ({ packageName = '' }) => {
     scriptRef.current = document.createElement('script');
     scriptRef.current.src = 'https://d335luupugsy2.cloudfront.net/js/rdstation-forms/stable/rdstation-forms.min.js';
     scriptRef.current.async = true;
-    scriptRef.current.onload = initializeForm;
+    scriptRef.current.onload = () => {
+      scriptLoaded.current = true;
+      initializeForm();
+    };
     scriptRef.current.onerror = (error) => {
       console.error('Erro ao carregar o script do RD Station:', error);
       scriptRef.current = null;
       scriptLoaded.current = false;
+      setFormError(true);
+      setIsLoading(false);
     };
-    
     document.body.appendChild(scriptRef.current);
     scriptLoaded.current = true;
   }, [initializeForm]);
@@ -94,6 +102,74 @@ const RDStationForm = ({ packageName = '' }) => {
       form.createLead(formValues);
     }
   };
+
+  // Renderização de fallback quando há erro no carregamento do RD Station
+  if (formError) {
+    return (
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        <h3 className="text-lg font-semibold mb-4">Solicitar Cotação</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          O formulário de contato não pôde ser carregado. Por favor, entre em contato conosco diretamente pelo WhatsApp ou telefone.
+        </p>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nome*</label>
+            <input 
+              type="text" 
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+              placeholder="Seu nome completo"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">E-mail*</label>
+            <input 
+              type="email" 
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+              placeholder="seu@email.com"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Telefone*</label>
+            <input 
+              type="tel" 
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+              placeholder="(00) 00000-0000"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
+            <textarea 
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+              rows="3"
+              placeholder="Como podemos te ajudar?"
+            ></textarea>
+          </div>
+          <button 
+            className="w-full bg-pink-600 text-white py-2 px-4 rounded-md hover:bg-pink-700 transition-colors"
+            onClick={() => alert('Formulário de contato não está disponível no momento. Por favor, entre em contato por telefone ou WhatsApp.')}
+          >
+            Enviar Mensagem
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar carregamento enquanto o formulário está sendo carregado
+  if (isLoading) {
+    return (
+      <div className="p-6 bg-white rounded-lg shadow-md text-center">
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 bg-gray-200 rounded w-3/4 mx-auto"></div>
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-200 rounded"></div>
+            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          </div>
+          <div className="h-10 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   // Estilos inline como fallback
   const styles = {
