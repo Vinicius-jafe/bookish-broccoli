@@ -345,33 +345,52 @@ function BannerManagement() {
 
   const fetchCurrentBanner = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/banner');
+      const response = await fetch('https://bookish-broccoli-nue4.onrender.com/api/banner');
       const data = await response.json();
       if (data.success && data.imageUrl) {
-        setCurrentBanner(`http://localhost:3001${data.imageUrl}`);
+        const cleanImageUrl = data.imageUrl.startsWith('/') ? data.imageUrl.substring(1) : data.imageUrl;
+        setCurrentBanner(`https://bookish-broccoli-nue4.onrender.com/${cleanImageUrl}`);
       }
     } catch (error) {
       console.error('Erro ao carregar banner:', error);
     }
   };
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!selectedFile) {
+      toast({
+        title: 'Atenção',
+        description: 'Por favor, selecione um arquivo antes de enviar.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     const formData = new FormData();
-    formData.append('banner', file);
+    formData.append('banner', selectedFile);
 
     setIsUploading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/banner', {
+      const response = await fetch('https://bookish-broccoli-nue4.onrender.com/api/banner', {
         method: 'POST',
         body: formData,
       });
       
       const data = await response.json();
       if (response.ok) {
-        setCurrentBanner(`http://localhost:3001${data.imageUrl}`);
+        const cleanImageUrl = data.imageUrl.startsWith('/') ? data.imageUrl.substring(1) : data.imageUrl;
+        setCurrentBanner(`https://bookish-broccoli-nue4.onrender.com/${cleanImageUrl}`);
+        setSelectedFile(null);
+        // Reset file input
+        document.getElementById('banner-upload').value = '';
         toast({
           title: 'Sucesso',
           description: 'Banner atualizado com sucesso!',
@@ -411,21 +430,31 @@ function BannerManagement() {
           )}
         </div>
         
-        <div>
-          <label className="block text-sm font-medium mb-2">
-            Enviar novo banner:
-          </label>
-          <Input 
-            type="file" 
-            accept="image/*" 
-            onChange={handleFileChange}
-            disabled={isUploading}
-            className="cursor-pointer"
-          />
-          <p className="text-xs text-muted-foreground mt-1">
-            Tamanho recomendado: 1200x400px. Formatos: JPG, PNG, WEBP
-          </p>
-        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Selecionar novo banner:
+            </label>
+            <Input 
+              id="banner-upload"
+              type="file" 
+              accept="image/*" 
+              onChange={handleFileChange}
+              disabled={isUploading}
+              className="cursor-pointer"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Tamanho recomendado: 1200x400px. Formatos: JPG, PNG, WEBP
+            </p>
+          </div>
+          <Button 
+            type="submit" 
+            disabled={!selectedFile || isUploading}
+            className="w-full"
+          >
+            {isUploading ? 'Enviando...' : 'Enviar Banner'}
+          </Button>
+        </form>
       </div>
     </Card>
   );

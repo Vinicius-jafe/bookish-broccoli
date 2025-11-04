@@ -7,10 +7,12 @@ export function Banner() {
   useEffect(() => {
     const fetchBanner = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/banner');
+        const response = await fetch('https://bookish-broccoli-nue4.onrender.com/api/banner');
         const data = await response.json();
         if (data.success && data.imageUrl) {
-          setBannerUrl(`http://localhost:3001${data.imageUrl}`);
+          // Remove any leading slash from imageUrl to prevent double slashes
+          const cleanImageUrl = data.imageUrl.startsWith('/') ? data.imageUrl.substring(1) : data.imageUrl;
+          setBannerUrl(`https://bookish-broccoli-nue4.onrender.com/${cleanImageUrl}`);
         }
       } catch (error) {
         console.error('Error loading banner:', error);
