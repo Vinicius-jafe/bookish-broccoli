@@ -74,9 +74,13 @@ const RDStationForm = (props) => {
       // Usa a variável de ambiente ou o localhost como fallback
       const backendUrl = process.env.REACT_APP_API_URL || 'http://localhost:4000';
       const endpoint = '/api/rdstation/conversion';
+      const url = `${backendUrl}${endpoint}`;
+      
+      console.log('Enviando requisição para:', url);
+      console.log('Payload:', JSON.stringify(apiPayload, null, 2));
       
       // Envia a requisição para o endpoint do backend
-      const response = await fetch(`${backendUrl}${endpoint}`, {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -84,6 +88,15 @@ const RDStationForm = (props) => {
         },
         body: JSON.stringify(apiPayload),
       });
+      
+      // Verifica se a resposta foi bem-sucedida
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || 
+          `Erro ao enviar formulário: ${response.status} ${response.statusText}`
+        );
+      }
       
       // Lê a resposta uma única vez
       const responseText = await response.text();
@@ -135,10 +148,18 @@ const RDStationForm = (props) => {
         throw new Error(customErrorMsg);
       }
     } catch (error) {
-      console.error('Erro de rede/processamento:', error);
+      console.error('Erro ao enviar formulário:', error);
+      
+      let errorMessage = error.message || 'Ocorreu um erro ao enviar sua mensagem.';
+      
+      // Tratamento específico para erros de rede
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        errorMessage = 'Não foi possível conectar ao servidor. Verifique sua conexão com a internet e tente novamente.';
+      }
+      
       setSubmitStatus({
         success: false,
-        message: error.message || 'Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente ou entre em contato por telefone.'
+        message: `${errorMessage} Por favor, tente novamente ou entre em contato por telefone.`
       });
     } finally {
       setIsSubmitting(false);
