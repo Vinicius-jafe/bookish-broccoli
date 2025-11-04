@@ -1,132 +1,171 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Skeleton, Button, Box, Typography } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
-export function Banner() {
-  const [bannerUrl, setBannerUrl] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+const API_BASE_URL = 'https://bookish-broccoli-nue4.onrender.com';
+
+export default function Banner() {
+  const [banner, setBanner] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
 
-  useEffect(() => {
-    const fetchBanner = async () => {
-      try {
-        const response = await fetch('https://bookish-broccoli-nue4.onrender.com/api/banner');
-        
-        if (!response.ok) {
-          throw new Error(`Erro ao carregar banner: ${response.status} ${response.statusText}`);
+  const fetchBanner = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await fetch(`${API_BASE_URL}/api/banner`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
         }
-        
-        const data = await response.json();
-        
-        if (data.success && data.imageUrl) {
-          // Remove any leading slash from imageUrl to prevent double slashes
-          const cleanImageUrl = data.imageUrl.startsWith('/') 
-            ? data.imageUrl.substring(1) 
-            : data.imageUrl;
-          setBannerUrl(`https://bookish-broccoli-nue4.onrender.com/${cleanImageUrl}`);
-        }
-      } catch (error) {
-        console.error('Error loading banner:', error);
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
+      });
+      
+      // Check if the response is JSON before trying to parse it
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Resposta não é JSON:', text.substring(0, 100));
+        throw new Error(`Resposta inesperada do servidor: ${response.status} ${response.statusText}`);
       }
-    };
-
-    fetchBanner();
-  }, []);
-
-  // Função para recarregar o banner
-  const handleRetry = () => {
-    setIsLoading(true);
-    setError(null);
-    fetch('https://bookish-broccoli-nue4.onrender.com/api/banner')
-      .then(response => {
-        if (!response.ok) throw new Error('Falha ao carregar o banner');
-        return response.json();
-      })
-      .then(data => {
-        if (data.success && data.imageUrl) {
-          const cleanImageUrl = data.imageUrl.startsWith('/') 
-            ? data.imageUrl.substring(1) 
-            : data.imageUrl;
-          setBannerUrl(`https://bookish-broccoli-nue4.onrender.com/${cleanImageUrl}`);
-        }
-      })
-      .catch(err => setError(err.message))
-      .finally(() => setIsLoading(false));
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || `Erro ao carregar banner: ${response.status}`);
+      }
+      
+      if (data.success && data.imageUrl) {
+        // Ensure the URL is absolute
+        const imageUrl = data.imageUrl.startsWith('http') 
+          ? data.imageUrl 
+          : `${API_BASE_URL}${data.imageUrl}`;
+          
+        setBanner({
+          imageUrl,
+          link: data.link || '#',
+          alt: data.alt || 'Banner promocional'
+        });
+      } else {
+        throw new Error(data.message || 'Formato de resposta inválido da API');
+      }
+    } catch (err) {
+      console.error('Erro ao carregar banner:', err);
+      setError(err.message || 'Erro desconhecido ao carregar o banner');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Estado de carregamento
-  if (isLoading) {
+  useEffect(() => {
+    fetchBanner();
+  }, [retryCount]);
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+  };
+
+  if (loading) {
     return (
-      <section className="max-w-6xl mx-auto px-4 mt-8">
-        <div className="rounded overflow-hidden bg-gray-100 h-40 md:h-52 flex items-center justify-center">
-          <div className="flex flex-col items-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-rose-600 mb-2"></div>
-            <p className="text-gray-600">Carregando banner...</p>
-          </div>
-        </div>
-      </section>
+      <Box sx={{ width: '100%', height: { xs: 150, sm: 200, md: 300 } }}>
+        <Skeleton 
+          variant="rectangular" 
+          width="100%" 
+          height="100%" 
+          animation="wave"
+          sx={{ bgcolor: 'grey.200' }}
+        />
+      </Box>
     );
   }
 
-  // Estado de erro
-  if (error) {
+  if (error || !banner) {
     return (
-      <section className="max-w-6xl mx-auto px-4 mt-8">
-        <div className="rounded overflow-hidden bg-rose-50 border border-rose-200 h-40 md:h-52 flex flex-col items-center justify-center p-4 text-center">
-          <p className="text-rose-600 mb-3">Não foi possível carregar o banner.</p>
-          <button
-            onClick={handleRetry}
-            className="px-4 py-2 bg-rose-600 text-white rounded hover:bg-rose-700 transition-colors"
-          >
-            Tentar novamente
-          </button>
-          <p className="text-xs text-gray-500 mt-2">Erro: {error}</p>
-        </div>
-      </section>
-    );
-  }
-
-  // Estado padrão (banner carregado)
-  return (
-    <section className="max-w-6xl mx-auto px-4 mt-8">
-      <div className="rounded overflow-hidden bg-cover bg-center h-40 md:h-52 flex items-center relative shadow-md">
-        {bannerUrl ? (
-          <img 
-            src={bannerUrl} 
-            alt="Banner promocional" 
-            className="absolute inset-0 w-full h-full object-cover"
-            onError={(e) => {
-              console.error('Erro ao carregar a imagem do banner');
-              e.target.style.display = 'none';
-              setError('Erro ao carregar a imagem do banner');
+      <Box 
+        sx={{ 
+          width: '100%', 
+          minHeight: 150,
+          display: 'flex', 
+          flexDirection: 'column',
+          justifyContent: 'center', 
+          alignItems: 'center',
+          backgroundColor: 'background.paper',
+          borderRadius: 1,
+          p: 3,
+          textAlign: 'center',
+          border: '1px dashed',
+          borderColor: 'divider',
+          boxShadow: 1
+        }}
+      >
+        <Typography variant="body1" color="text.secondary" gutterBottom>
+          Não foi possível carregar o banner.
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<RefreshIcon />}
+          onClick={handleRetry}
+          sx={{ mt: 1, textTransform: 'none' }}
+        >
+          Tentar novamente
+        </Button>
+        {error && (
+          <Typography 
+            variant="caption" 
+            color="error" 
+            sx={{ 
+              mt: 1,
+              display: 'inline-block',
+              maxWidth: '100%',
+              wordBreak: 'break-word',
+              textAlign: 'center'
             }}
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-r from-rose-50 to-rose-100"></div>
+          >
+            {error}
+          </Typography>
         )}
-        
-        <div className="absolute inset-0 bg-black/10"></div>
-        
-        <div className="bg-white/30 w-full h-full flex items-center relative z-10">
-          <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-4 items-center w-full">
-            <div className="flex items-center gap-4">
-              <img 
-                src={require('../images/logo-final.jpg')} 
-                alt="Bella Renda & Viagens" 
-                className="h-12 w-auto"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                }}
-              />
-            </div>
-    
-            <div className="md:col-span-2 text-xl md:text-2xl font-medium text-gray-800">
-              Na Bella Renda e Viagens, transformamos sonhos em <span className="text-rose-600 font-bold">passaportes.</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+      </Box>
+    );
+  }
+
+  return (
+    <Box 
+      component="a" 
+      href={banner.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      sx={{
+        display: 'block',
+        width: '100%',
+        maxWidth: '100%',
+        height: 'auto',
+        overflow: 'hidden',
+        borderRadius: 1,
+        '&:hover': {
+          opacity: 0.92,
+          transition: 'opacity 0.3s ease',
+        },
+      }}
+    >
+      <Box
+        component="img"
+        src={banner.imageUrl} 
+        alt={banner.alt}
+        sx={{
+          width: '100%',
+          height: 'auto',
+          display: 'block',
+          objectFit: 'cover',
+          maxHeight: { xs: 150, sm: 200, md: 300 },
+        }}
+        onError={(e) => {
+          console.error('Erro ao carregar a imagem do banner:', banner.imageUrl);
+          e.target.onerror = null;
+          e.target.src = `https://via.placeholder.com/1200x300?text=Banner+Não+Encontrado&t=${Date.now()}`;
+        }}
+      />
+    </Box>
   );
 }
