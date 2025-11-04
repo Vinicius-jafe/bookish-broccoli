@@ -71,8 +71,12 @@ const RDStationForm = (props) => {
     console.log('Payload a ser enviado para a API v3:', JSON.stringify(apiPayload, null, 2));
 
     try {
+      // Usa a variável de ambiente ou o localhost como fallback
+      const backendUrl = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+      const endpoint = '/api/rdstation/conversion';
+      
       // Envia a requisição para o endpoint do backend
-      const response = await fetch('http://localhost:3001/api/rdstation/conversion', {
+      const response = await fetch(`${backendUrl}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
