@@ -175,14 +175,12 @@ parseInt(form.duration || "0", 10) : form.duration;
             </div>
             <div>
              
-                <label className="text-sm">Duração (dias)</label>
+                <label className="text-sm">Duração (dias) - 0 para ilimitado</label>
                 <Input
                     type="number"
-                    min={1}
-                    max={30}
-                   
+                    min={0}
                     value={form.duration}
-                    onChange={(e) => set("duration", e.target.value)}
+                    onChange={(e) => set("duration", e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                 />
             </div>
             <div>
@@ -208,17 +206,22 @@ parseInt(form.duration || "0", 10) : form.duration;
                 <label 
 className="text-sm">Preço a partir de</label>
                 <Input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={form.priceFrom}
- 
-                    onChange={(e) => set("priceFrom", e.target.value)}
+                    type="text"
+                    inputMode="decimal"
+                    value={form.priceFrom?.toString().replace('.', ',') || ''}
+                    onChange={(e) => {
+                        // Allow only numbers and comma as decimal separator
+                        const value = e.target.value.replace(/[^0-9,]/g, '');
+                        // Replace comma with dot for storage
+                        const numericValue = value.replace(',', '.');
+                        set("priceFrom", numericValue ? parseFloat(numericValue) : 0);
+                    }}
+                    placeholder="0,00"
                 />
             </div>
 
             {/* ------------------------------------------------------------------- */}
-            {/* 🎯 NOVO CAMPO: UPLOAD DE ARQUIVOS */}
+            {/* NOVO CAMPO: UPLOAD DE ARQUIVOS */}
             {/* ------------------------------------------------------------------- */}
    
             <div className="md:col-span-2">
@@ -490,7 +493,53 @@ export default function Admin() {
 
 // === FORMULÁRIO DE COTAÇÃO DETALHADO ===
 function DetailedQuotationForm({ packageName }) {
-    // O script do RD Station é gerenciado pelo componente RDStationForm
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        message: `Gostaria de mais informações sobre o pacote: ${packageName}`
+    });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitStatus, setSubmitStatus] = useState({ success: false, message: '' });
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        
+        try {
+            // Aqui você pode adicionar a lógica para enviar o formulário
+            // Por enquanto, apenas simulamos um envio
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            setSubmitStatus({ 
+                success: true, 
+                message: 'Solicitação enviada com sucesso! Em breve entraremos em contato.' 
+            });
+            
+            // Limpa o formulário após o envio
+            setFormData({
+                name: '',
+                email: '',
+                phone: '',
+                message: `Gostaria de mais informações sobre o pacote: ${packageName}`
+            });
+        } catch (error) {
+            setSubmitStatus({ 
+                success: false, 
+                message: 'Ocorreu um erro ao enviar sua solicitação. Por favor, tente novamente.' 
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <div className="space-y-4">
@@ -505,16 +554,18 @@ function DetailedQuotationForm({ packageName }) {
                 Além de parcelamento facilitado, oferecemos atendimento personalizado.
             </p>
 
-            {/* Formulário RD Station */}
-            <div id="integracao-3bd2e2520b4a83678275" className="space-y-4">
-                <form className="space-y-4">
-                    <input type="hidden" name="pacoteTitulo" value={packageName} />
+            {/* Formulário de contato */}
+            <div className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <input type="hidden" name="package" value={packageName} />
                     <div>
                         <label htmlFor="name" className="block text-sm font-medium text-white mb-1">Nome</label>
                         <input
                             type="text"
                             id="name"
                             name="name"
+                            value={formData.name}
+                            onChange={handleChange}
                             required
                             className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
                         />
@@ -525,6 +576,8 @@ function DetailedQuotationForm({ packageName }) {
                             type="email"
                             id="email"
                             name="email"
+                            value={formData.email}
+                            onChange={handleChange}
                             required
                             className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
                         />
@@ -535,6 +588,8 @@ function DetailedQuotationForm({ packageName }) {
                             type="tel"
                             id="phone"
                             name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
                             required
                             className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
                         />
@@ -545,17 +600,25 @@ function DetailedQuotationForm({ packageName }) {
                             id="message"
                             name="message"
                             rows="3"
+                            value={formData.message}
+                            onChange={handleChange}
                             className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
                             placeholder="Conte-nos sobre o que você está procurando..."
-                            defaultValue={`Gostaria de mais informações sobre o pacote: ${packageName}`}
                         ></textarea>
                     </div>
+                    {/* Mensagem de status do envio */}
+                    {submitStatus.message && (
+                        <div className={`p-3 rounded text-sm ${submitStatus.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {submitStatus.message}
+                        </div>
+                    )}
                     <div className="pt-2">
                         <button
                             type="submit"
-                            className="w-full bg-white text-primary font-semibold py-2 px-4 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-colors"
+                            disabled={isSubmitting}
+                            className="w-full bg-white text-primary font-semibold py-2 px-4 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-colors disabled:opacity-50"
                         >
-                            Enviar mensagem
+                            {isSubmitting ? 'Enviando...' : 'Enviar mensagem'}
                         </button>
                     </div>
                 </form>

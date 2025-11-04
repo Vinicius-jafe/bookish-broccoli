@@ -8,9 +8,9 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { AspectRatio } from "../components/ui/aspect-ratio";
 import { Separator } from "../components/ui/separator";
 import { Instagram, Youtube, Mail, Phone, MapPin, Airplay, Star, ShieldCheck, Facebook } from "lucide-react";
-import RDStationForm from './RDStationForm';
 import { Benefits } from "./sections/Benefits";
 import { loadPackages as fetchPackages, imageUrl } from "../services/api"; // API real
+import ContactForm from "./ContactForm";
 
 // Importando as imagens
 import logoFinal from '../images/logo-final.jpg';
@@ -233,48 +233,27 @@ function Row({ title, subtitle, filter, primaryColor = false }) {
   );
 }
 
-// Contact CTA section with RD Station form
+// Seção de contato simplificada
 function ContactCTA() {
-  // Cor rosa principal da imagem
-  const formBackgroundColor = 'hsl(340, 45%, 54%)'; 
-
   return (
-    <section className="max-w-3xl mx-auto px-4 mt-16">
+    <section className="max-w-3xl mx-auto px-4 mt-16" id="contato">
       <div className="text-center">
         <h2 className="text-2xl md:text-3xl font-bold">Está preparada para dizer <span className="text-primary">sim para você?</span></h2>
         <p className="text-sm text-gray-600 mt-2 max-w-2xl mx-auto">
-          Fale com a nossa equipe e descubra o roteiro que vai fazer seu coração vibrar.
-          Além de parcelamento facilitado, oferecemos atendimento personalizado para que sua
-          viagem seja leve, segura e inesquecível.
+          Entre em contato e descubra como podemos transformar sua próxima viagem em uma experiência inesquecível.
         </p>
       </div>
 
-      {/* Box do Formulário - Usando o componente RDStationForm */}
-      <div className="mt-8 shadow-lg p-6 md:p-8 rounded-xl" style={{ backgroundColor: formBackgroundColor }}>
-        <div className="max-w-md mx-auto">
-          <RDStationForm />
-        </div>
+      <div className="mt-8 shadow-lg p-6 md:p-8 rounded-xl bg-pink-600">
+        <ContactForm />
       </div>
 
       <p className="text-center text-sm text-gray-700 mt-6">
-        Porque viajar é autocuidado, é liberdade, é reencontrar quem você é
-        <br />
-        <span className="font-bold">e o mundo espera.</span>
+        Ou entre em contato diretamente por{' '}
+        <a href="mailto:contato@bellarenda.com" className="text-pink-600 font-medium hover:underline">
+          contato@bellarenda.com
+        </a>
       </p>
-
-      <div className="mt-8 border-t pt-6">
-        <div className="grid md:grid-cols-3 gap-6 items-center bg-primary/10 p-6 rounded">
-          <div className="flex items-center justify-center">
-            <div className="text-2xl font-serif text-primary">Bella</div>
-          </div>
-          <div className="md:col-span-2 text-sm text-gray-700">
-            Documentação, políticas de pagamento, suporte 24h,
-            grupos exclusivos para mulheres.
-            Vagas limitadas por formato de viagem — garanta sua
-            presença.
-          </div>
-        </div>
-      </div>
     </section>
   );
 }

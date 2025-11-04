@@ -26,7 +26,6 @@ import { SiteShell, PackageCard } from "../components/SiteShell";
 import { loadPackages, loadPackageBySlug, imageUrl } from "../services/api";
 import { months as monthList } from "../constants/months";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import RDStationForm from "../components/RDStationForm";
 
 // Hook para ler query params
 function useQuery() {
@@ -293,7 +292,7 @@ export function PackageDetail() {
               </div>
             </div>
 
-            {/* Formulário de contato */}
+            {/* Formulário de contato simplificado */}
             <div className="sticky top-4 h-fit">
               <Card className="border border-gray-200 shadow-lg overflow-hidden">
                 <div className="bg-primary p-4 text-white">
@@ -301,12 +300,53 @@ export function PackageDetail() {
                   <p className="text-sm opacity-90">Preencha o formulário abaixo</p>
                 </div>
                 <div className="p-4">
-                  <div className="space-y-4">
-                    <RDStationForm />
+                  <form className="space-y-4">
+                    <div>
+                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Seu nome</label>
+                      <Input 
+                        type="text" 
+                        id="name" 
+                        placeholder="Nome completo" 
+                        className="w-full"
+                        required 
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Seu email</label>
+                      <Input 
+                        type="email" 
+                        id="email" 
+                        placeholder="seu@email.com" 
+                        className="w-full"
+                        required 
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                      <Input 
+                        type="tel" 
+                        id="phone" 
+                        placeholder="(00) 00000-0000" 
+                        className="w-full"
+                        required 
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
+                      <Textarea 
+                        id="message" 
+                        placeholder="Gostaria de mais informações sobre este pacote..." 
+                        className="w-full min-h-[100px]"
+                        required 
+                      />
+                    </div>
+                    <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
+                      Enviar solicitação
+                    </Button>
                     <p className="text-xs text-muted-foreground text-center">
                       Ao preencher o formulário, você concorda em receber comunicações da Bella Renda & Viagens.
                     </p>
-                  </div>
+                  </form>
                 </div>
               </Card>
             </div>
