@@ -1,384 +1,253 @@
-import React, { useEffect, useRef, useCallback, useState } from 'react';
+import React, { useState } from 'react';
 
-const RDStationForm = ({ packageName = '' }) => {
-  const [formError, setFormError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const formRef = useRef(null);
-  const scriptLoaded = useRef(false);
-  const scriptRef = useRef(null);
+// 1. Definição do objeto de estilos (styles)
+const styles = {
+  button: {
+    width: '100%',
+    padding: '0.75rem 1rem', // py-3 px-4
+    backgroundColor: '#ec4899', // pink-500
+    color: 'white',
+    borderRadius: '0.375rem', // rounded-md
+    fontWeight: '600', // font-semibold
+    transition: 'background-color 0.15s ease-in-out',
+    border: 'none',
+    cursor: 'pointer',
+    fontSize: '1rem',
+    lineHeight: '1.5',
+  },
+  footer: {
+    marginTop: '1rem',
+    fontSize: '0.75rem', // text-xs
+    color: '#6b7280', // text-gray-500
+    textAlign: 'center',
+    padding: '0 1.5rem 1.5rem', // Adiciona padding para o rodapé se for exibido fora da div principal
+  },
+};
 
-  // Função para inicializar o formulário
-  const initializeForm = useCallback(() => {
-    if (window.RDStationForms && formRef.current) {
-      try {
-        // Verifica se o formulário já foi inicializado
-        if (!formRef.current.hasAttribute('data-rd-form-initialized')) {
-          // Desativa a renderização automática do formulário
-          const form = new window.RDStationForms('integracao-3bd2e2520b4a83678275', 'null');
-          form.options = {
-            ...form.options,
-            autoRender: false // Desativa a renderização automática
-          };
-          formRef.current.setAttribute('data-rd-form-initialized', 'true');
-          setFormError(false);
-        }
-      } catch (error) {
-        console.error('Erro ao inicializar o formulário do RD Station:', error);
-        setFormError(true);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  }, []);
+const RDStationForm = (props) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState({ success: false, message: '' });
+  const packageName = props.packageTitle || '';
 
-  // Função para carregar o script do RD Station
-  const loadScript = useCallback(() => {
-    if (scriptLoaded.current || scriptRef.current || !document) return;
-    
-    // Verifica se o script já existe no documento
-    const existingScript = document.querySelector('script[src*="rdstation-forms"]');
-    if (existingScript) {
-      scriptRef.current = existingScript;
-      scriptLoaded.current = true;
-      initializeForm();
-      return;
-    }
-    
-    // Cria e adiciona o script
-    scriptRef.current = document.createElement('script');
-    scriptRef.current.src = 'https://d335luupugsy2.cloudfront.net/js/rdstation-forms/stable/rdstation-forms.min.js';
-    scriptRef.current.async = true;
-    scriptRef.current.onload = () => {
-      scriptLoaded.current = true;
-      initializeForm();
-    };
-    scriptRef.current.onerror = (error) => {
-      console.error('Erro ao carregar o script do RD Station:', error);
-      scriptRef.current = null;
-      scriptLoaded.current = false;
-      setFormError(true);
-      setIsLoading(false);
-    };
-    document.body.appendChild(scriptRef.current);
-    scriptLoaded.current = true;
-  }, [initializeForm]);
-
-  useEffect(() => {
-    // Só executa no cliente
-    if (typeof window === 'undefined') return;
-
-    // Se o script já estiver carregado, apenas inicializa o formulário
-    if (window.RDStationForms) {
-      initializeForm();
-    } else {
-      loadScript();
-    }
-
-    // Verifica periodicamente se o script foi carregado (fallback)
-    const checkRDStation = setInterval(() => {
-      if (window.RDStationForms) {
-        clearInterval(checkRDStation);
-        initializeForm();
-      }
-    }, 1000);
-
-    // Limpa apenas o intervalo
-    return () => {
-      clearInterval(checkRDStation);
-    };
-  }, [loadScript, initializeForm]);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (window.RDStationForms) {
-      const form = new window.RDStationForms('integracao-3bd2e2520b4a83678275', 'null');
-      // Coleta os dados do formulário manualmente
-      const formData = new FormData(e.target);
-      const formValues = {};
-      formData.forEach((value, key) => {
-        formValues[key] = value;
+    setIsSubmitting(true);
+    setSubmitStatus({ success: false, message: '' });
+
+    // Coleta os dados do formulário
+    const formData = new FormData(e.target);
+    const formValues = {};
+    formData.forEach((value, key) => {
+      formValues[key] = value;
+    });
+
+    // Já temos packageName definido no escopo do componente
+
+    // Prepara o payload da API
+    const apiPayload = {
+      event_type: "CONVERSION",
+      event_family: "CDP",
+      payload: {
+        conversion_identifier: "integracao-3bd2e2520b4a83678275",
+        name: formValues.name,
+        email: formValues.email,
+        personal_phone: formValues.phone,
+        city: formValues.city,
+        state: formValues.state || '',
+        country: 'Brasil',
+        cf_destino: formValues.destination || packageName,
+        cf_origem: 'Site',
+        cf_origem_url: typeof window !== 'undefined' ? window.location.href : '',
+        ...(packageName && { cf_pacote: packageName }),
+        cf_meio_captacao: 'Formulário de Contato',
+        traffic_source: 'direct',
+        traffic_medium: 'form',
+        traffic_campaign: 'website',
+        traffic_value: 'formulario-contato'
+      }
+    };
+
+    // Log detalhado do payload
+    console.log('Payload a ser enviado para a API v3:', JSON.stringify(apiPayload, null, 2));
+
+    try {
+      // Envia a requisição para o endpoint do backend
+      const response = await fetch('http://localhost:3001/api/rdstation/conversion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(apiPayload),
       });
-      // Envia os dados para o RD Station
-      form.createLead(formValues);
+      
+      // Lê a resposta uma única vez
+      const responseText = await response.text();
+      let responseData = {};
+      
+      try {
+        responseData = responseText ? JSON.parse(responseText) : {};
+      } catch (e) {
+        console.warn('Não foi possível fazer parse da resposta JSON:', e);
+        responseData = { error: responseText };
+      }
+      
+      const logData = {
+        status: response.status,
+        statusText: response.statusText,
+        data: responseData,
+        headers: Object.fromEntries(response.headers.entries())
+      };
+      
+      console.log('Resposta do servidor RD Station:', logData);
+
+      if (response.ok) {
+        setSubmitStatus({
+          success: true,
+          message: 'Mensagem enviada com sucesso! Em breve entraremos em contato.'
+        });
+        e.target.reset(); // Limpa o formulário
+      } else {
+        console.error("Erro ao enviar para o RD Station:", logData);
+        
+        let customErrorMsg = 'Erro ao enviar o formulário. ';
+        
+        if (response.status === 401) {
+          customErrorMsg += 'Token de acesso inválido ou expirado.';
+        } else if (response.status === 400) {
+          customErrorMsg += 'Dados inválidos. Verifique os campos do formulário.';
+        } else if (response.status === 404) {
+          customErrorMsg += 'Recurso não encontrado. Verifique o identificador de conversão.';
+        } else if (response.status >= 500) {
+          customErrorMsg += 'Erro no servidor do RD Station. Tente novamente mais tarde.';
+        }
+        
+        if (responseData.error) {
+          customErrorMsg += ' ' + (responseData.error.message || JSON.stringify(responseData.error));
+        } else if (responseData.errors) {
+          customErrorMsg += ' ' + responseData.errors.map(err => err.message || JSON.stringify(err)).join(', ');
+        }
+        
+        throw new Error(customErrorMsg);
+      }
+    } catch (error) {
+      console.error('Erro de rede/processamento:', error);
+      setSubmitStatus({
+        success: false,
+        message: error.message || 'Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente ou entre em contato por telefone.'
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // Renderização de fallback quando há erro no carregamento do RD Station
-  if (formError) {
+  // Mostrar mensagem de sucesso/erro após envio
+  if (submitStatus.message) {
     return (
       <div className="p-6 bg-white rounded-lg shadow-md">
-        <h3 className="text-lg font-semibold mb-4">Solicitar Cotação</h3>
-        <p className="text-sm text-gray-600 mb-4">
-          O formulário de contato não pôde ser carregado. Por favor, entre em contato conosco diretamente pelo WhatsApp ou telefone.
-        </p>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nome*</label>
-            <input 
-              type="text" 
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-              placeholder="Seu nome completo"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">E-mail*</label>
-            <input 
-              type="email" 
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-              placeholder="seu@email.com"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Telefone*</label>
-            <input 
-              type="tel" 
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-              placeholder="(00) 00000-0000"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mensagem</label>
-            <textarea 
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-              rows="3"
-              placeholder="Como podemos te ajudar?"
-            ></textarea>
-          </div>
-          <button 
-            className="w-full bg-pink-600 text-white py-2 px-4 rounded-md hover:bg-pink-700 transition-colors"
-            onClick={() => alert('Formulário de contato não está disponível no momento. Por favor, entre em contato por telefone ou WhatsApp.')}
-          >
-            Enviar Mensagem
-          </button>
+        <div className={`p-4 rounded-md ${submitStatus.success ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+          <p className="text-center font-medium">{submitStatus.message}</p>
+          {!submitStatus.success && (
+            <button
+              onClick={() => setSubmitStatus({ success: false, message: '' })}
+              className="mt-3 w-full bg-pink-600 text-white py-2 px-4 rounded-md hover:bg-pink-700 transition-colors font-semibold"
+            >
+              Tentar novamente
+            </button>
+          )}
         </div>
       </div>
     );
   }
-
-  // Mostrar carregamento enquanto o formulário está sendo carregado
-  if (isLoading) {
-    return (
-      <div className="p-6 bg-white rounded-lg shadow-md text-center">
-        <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-3/4 mx-auto"></div>
-          <div className="space-y-2">
-            <div className="h-4 bg-gray-200 rounded"></div>
-            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-          </div>
-          <div className="h-10 bg-gray-200 rounded"></div>
-        </div>
-      </div>
-    );
-  }
-
-  // Estilos inline como fallback
-  const styles = {
-    container: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1rem',
-      width: '100%',
-      maxWidth: '100%',
-      margin: '0 auto',
-      padding: '1rem',
-      boxSizing: 'border-box',
-      backgroundColor: '#ffffff',  // Fundo branco para garantir contraste
-      borderRadius: '0.5rem'      // Borda arredondada
-    },
-    form: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1rem',
-      width: '100%'
-    },
-    input: {
-      width: '100%',
-      padding: '0.5rem 0.75rem',
-      borderRadius: '0.375rem',
-      border: '1px solid #d1d5db',
-      backgroundColor: 'white',
-      color: '#1f2937',  // Cor de texto mais escura para melhor contraste
-      fontSize: '0.875rem',
-      lineHeight: '1.25rem',
-      boxSizing: 'border-box',
-      outline: 'none',
-      transition: 'border-color 0.2s, box-shadow 0.2s'
-    },
-    inputFocus: {
-      borderColor: '#ec4899',
-      boxShadow: '0 0 0 2px rgba(236, 72, 153, 0.2)'
-    },
-    label: {
-      display: 'block',
-      marginBottom: '0.25rem',
-      fontSize: '0.875rem',
-      fontWeight: '600',  // Fonte mais grossa para melhor legibilidade
-      color: '#1f2937'    // Cor de texto mais escura para melhor contraste
-    },
-    button: {
-      width: '100%',
-      backgroundColor: '#ec4899',
-      color: 'white',
-      fontWeight: '600',
-      padding: '0.5rem 1rem',
-      borderRadius: '0.375rem',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: '0.875rem',
-      lineHeight: '1.25rem',
-      transition: 'background-color 0.2s',
-      marginTop: '0.5rem'
-    },
-    buttonHover: {
-      backgroundColor: '#db2777'
-    },
-    footer: {
-      fontSize: '0.75rem',
-      color: '#4b5563',  // Cor ligeiramente mais escura para melhor legibilidade
-      textAlign: 'center',
-      marginTop: '0.5rem',
-      lineHeight: '1.25' // Melhora a legibilidade do texto
-    }
-  };
 
   return (
-    <div style={styles.container}>
-      {packageName && (
-        <input 
-          type="hidden" 
-          name="pacoteTitulo" 
-          value={packageName} 
-        />
-      )}
+    // Opcional: encapsular o formulário e o rodapé na mesma div para manter o padding/sombra consistente
+    <div className="bg-white rounded-lg shadow-md"> 
       <form 
-        id="integracao-3bd2e2520b4a83678275" 
-        style={styles.form}
-        ref={formRef}
         onSubmit={handleSubmit}
+        className="p-6" // Remove o padding/sombra daqui, pois a div pai já aplica
       >
-        {/* Nome */}
-        <div>
-          <label htmlFor="name" style={styles.label}>
-            Nome*
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            style={styles.input}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#ec4899';
-              e.target.style.boxShadow = '0 0 0 2px rgba(236, 72, 153, 0.2)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = '#d1d5db';
-              e.target.style.boxShadow = 'none';
-            }}
-          />
-        </div>
+        <h3 className="text-xl font-bold text-gray-800 mb-4">Solicitar Cotação</h3>
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Nome*</label>
+            <input 
+              type="text" 
+              id="name"
+              name="name"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+              placeholder="Seu nome completo"
+              disabled={isSubmitting} // Desabilita durante o envio
+            />
+          </div>
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">E-mail*</label>
+            <input 
+              type="email" 
+              id="email"
+              name="email"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+              placeholder="seu@email.com"
+              disabled={isSubmitting} // Desabilita durante o envio
+            />
+          </div>
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">Telefone*</label>
+            <input 
+              type="tel" 
+              id="phone"
+              name="phone"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+              placeholder="(00) 00000-0000"
+              disabled={isSubmitting} // Desabilita durante o envio
+            />
+          </div>
+          <div>
+            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">Cidade/Estado*</label>
+            <input 
+              type="text" 
+              id="city"
+              name="city"
+              required
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+              placeholder="Sua cidade e estado"
+              disabled={isSubmitting} // Desabilita durante o envio
+            />
+          </div>
+          <div>
+            <label htmlFor="destination" className="block text-sm font-medium text-gray-700 mb-1">Destino de Interesse</label>
+            <input 
+              type="text" 
+              id="destination"
+              name="destination"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
+              placeholder="Para onde você quer viajar?"
+              defaultValue={packageName}
+              disabled={isSubmitting} // Desabilita durante o envio
+            />
+          </div>
 
-        {/* Telefone */}
-        <div>
-          <label htmlFor="phone" style={styles.label}>
-            Telefone*
-          </label>
-          <input
-            type="tel"
-            id="phone"
-            name="phone"
-            required
-            style={styles.input}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#ec4899';
-              e.target.style.boxShadow = '0 0 0 2px rgba(236, 72, 153, 0.2)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = '#d1d5db';
-              e.target.style.boxShadow = 'none';
-            }}
-          />
-        </div>
-
-        {/* Email */}
-        <div>
-          <label htmlFor="email" style={styles.label}>
-            Email*
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            required
-            style={styles.input}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#ec4899';
-              e.target.style.boxShadow = '0 0 0 2px rgba(236, 72, 153, 0.2)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = '#d1d5db';
-              e.target.style.boxShadow = 'none';
-            }}
-          />
-        </div>
-
-        {/* Cidade */}
-        <div>
-          <label htmlFor="city" style={styles.label}>
-            Qual sua cidade?*
-          </label>
-          <input
-            type="text"
-            id="city"
-            name="city"
-            required
-            style={styles.input}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#ec4899';
-              e.target.style.boxShadow = '0 0 0 2px rgba(236, 72, 153, 0.2)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = '#d1d5db';
-              e.target.style.boxShadow = 'none';
-            }}
-          />
-        </div>
-
-        {/* Destino */}
-        <div>
-          <label htmlFor="destination" style={styles.label}>
-            Qual destino gostaria de ir?*
-          </label>
-          <input
-            type="text"
-            id="destination"
-            name="destination"
-            required
-            style={styles.input}
-            onFocus={(e) => {
-              e.target.style.borderColor = '#ec4899';
-              e.target.style.boxShadow = '0 0 0 2px rgba(236, 72, 153, 0.2)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = '#d1d5db';
-              e.target.style.boxShadow = 'none';
-            }}
-          />
-        </div>
-
-        <div style={{ paddingTop: '0.5rem' }}>
-          <button
-            type="submit"
-            style={styles.button}
-            onMouseOver={(e) => {
-              e.target.style.backgroundColor = '#db2777';
-            }}
-            onMouseOut={(e) => {
-              e.target.style.backgroundColor = '#ec4899';
-            }}
-          >
-            Enviar mensagem
-          </button>
+          <div style={{ paddingTop: '0.5rem' }}>
+            <button
+              type="submit"
+              style={styles.button}
+              disabled={isSubmitting}
+              onMouseOver={(e) => {
+                e.currentTarget.style.backgroundColor = '#db2777'; // pink-600
+              }}
+              onMouseOut={(e) => {
+                // Mantém a cor original se não estiver desabilitado
+                if (!isSubmitting) {
+                    e.currentTarget.style.backgroundColor = '#ec4899'; // pink-500
+                }
+              }}
+            >
+              {isSubmitting ? 'Enviando...' : 'Enviar mensagem'}
+            </button>
+          </div>
         </div>
       </form>
       

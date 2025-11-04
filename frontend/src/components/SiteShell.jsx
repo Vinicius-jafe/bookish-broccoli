@@ -7,7 +7,8 @@ import { Badge } from "../components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../components/ui/carousel";
 import { AspectRatio } from "../components/ui/aspect-ratio";
 import { Separator } from "../components/ui/separator";
-import { Instagram, Youtube, Mail, Phone, MapPin, Airplay, Star, ShieldCheck } from "lucide-react";
+import { Instagram, Youtube, Mail, Phone, MapPin, Airplay, Star, ShieldCheck, Facebook } from "lucide-react";
+import RDStationForm from './RDStationForm';
 import { Benefits } from "./sections/Benefits";
 import { loadPackages as fetchPackages, imageUrl } from "../services/api"; // API real
 
@@ -85,7 +86,7 @@ export function Footer() {
           <p className="text-muted-foreground">CNPJ 00.000.000/0000-00</p>
           <div className="flex gap-3 mt-3 text-muted-foreground">
             <a href="#" aria-label="Instagram" className="hover:text-foreground"><Instagram size={18}/></a>
-            <a href="#" aria-label="YouTube" className="hover:text-foreground"><Youtube size={18}/></a>
+            <a href="#" aria-label="Facebook" className="hover:text-foreground"><Facebook size={18}/></a>
           </div>
         </div>
       </div>
@@ -234,7 +235,8 @@ function Row({ title, subtitle, filter, primaryColor = false }) {
 
 // Contact CTA section with RD Station form
 function ContactCTA() {
-  // O script do RD Station é gerenciado pelo componente RDStationForm
+  // Cor rosa principal da imagem
+  const formBackgroundColor = 'hsl(340, 45%, 54%)'; 
 
   return (
     <section className="max-w-3xl mx-auto px-4 mt-16">
@@ -247,64 +249,10 @@ function ContactCTA() {
         </p>
       </div>
 
-      <div className="mt-6">
-        <div className="bg-primary px-6 py-6 rounded-lg shadow-xl">
-          <h3 className="text-white text-center mb-6">Entre em contato conosco para mais informações</h3>
-          <div id="integracao-3bd2e2520b4a83678275" className="max-w-xl mx-auto">
-            <form 
-              id="form-integracao-3bd2e2520b4a83678275" 
-              className="space-y-4"
-            >
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-white mb-1">Nome</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  required
-                  className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
-                />
-              </div>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-white mb-1">E-mail</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
-                />
-              </div>
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-white mb-1">Telefone</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  required
-                  className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
-                />
-              </div>
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-white mb-1">Mensagem</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows="3"
-                  className="w-full px-3 py-2 rounded border border-gray-300 focus:ring-2 focus:ring-offset-2 focus:ring-white focus:outline-none"
-                  placeholder="Conte-nos sobre o que você está procurando..."
-                ></textarea>
-              </div>
-              <div className="pt-2">
-                <button
-                  type="submit"
-                  className="w-full bg-white text-primary font-semibold py-2 px-4 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-colors"
-                >
-                  Enviar mensagem
-                </button>
-              </div>
-            </form>
-          </div>
+      {/* Box do Formulário - Usando o componente RDStationForm */}
+      <div className="mt-8 shadow-lg p-6 md:p-8 rounded-xl" style={{ backgroundColor: formBackgroundColor }}>
+        <div className="max-w-md mx-auto">
+          <RDStationForm />
         </div>
       </div>
 
@@ -315,7 +263,6 @@ function ContactCTA() {
       </p>
 
       <div className="mt-8 border-t pt-6">
-      
         <div className="grid md:grid-cols-3 gap-6 items-center bg-primary/10 p-6 rounded">
           <div className="flex items-center justify-center">
             <div className="text-2xl font-serif text-primary">Bella</div>
@@ -400,26 +347,34 @@ export function Home() {
           {/* Imagens sobrepostas */}
           <div className="relative h-64 md:h-96 mt-10 md:mt-0">
             {featuredPackages.slice(0, 2).map((pkg, index) => (
-              <div key={pkg._id} className={`absolute ${index === 0 ? 'rotate-3' : '-rotate-6'}`}
+              <div 
+                key={`pkg-${pkg._id || index}`} 
+                className={`absolute ${index === 0 ? 'rotate-3' : '-rotate-6'}`}
                 style={{
                   top: index === 0 ? '20%' : '10%',
                   left: index === 0 ? '10%' : 'auto',
                   right: index === 0 ? 'auto' : '10%',
                   zIndex: 10 - index
-                }}>
-      
+                }}
+              >
                 <img 
+                  key={`img-${pkg._id || index}`}
                   src={imageUrl(pkg.images?.[0] || placeholderImages[index])} 
                   alt={pkg.title || `Destino ${index + 1}`} 
                   className="w-48 h-64 object-cover shadow-xl border-4 border-white"
                 />
-         
-                <span className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-base font-semibold text-white bg-black/50 px-3 py-1 rounded-full whitespace-nowrap">
+                <span 
+                  key={`badge-${pkg._id || index}`}
+                  className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-base font-semibold text-white bg-black/50 px-3 py-1 rounded-full whitespace-nowrap"
+                >
                   {pkg.destination?.toUpperCase() || `DESTINO ${index + 1}`}
                 </span>
               </div>
             ))}
-            <Airplay className="absolute top-0 right-0 h-20 w-20 text-white/30 hidden md:block" />
+            <Airplay 
+              key="airplay-icon"
+              className="absolute top-0 right-0 h-20 w-20 text-white/30 hidden md:block" 
+            />
           </div>
         </div>
       </section>
@@ -437,33 +392,6 @@ export function Home() {
           primaryColor={true}
         />
       </div>
-
-      {/* Banner entre listas com imagem local */}
-      <section className="max-w-6xl mx-auto px-4 mt-8">
-        <div className="rounded overflow-hidden bg-cover bg-center h-40 md:h-52 flex items-center relative">
-          <img 
-            src={require('../images/png_muito.png')} 
-            alt="" 
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/20"></div>
-          <div className="bg-white/85 w-full h-full flex items-center relative z-10">
-            <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-4 items-center w-full">
-              <div className="flex items-center gap-4">
-                <img 
-                  src={logoFinal} 
-                  alt="Bella Renda & Viagens" 
-                  className="h-12 w-auto opacity-90"
-                />
-              </div>
-      
-              <div className="md:col-span-2 text-xl md:text-2xl font-medium">
-                Na Bella Renda e Viagens, transformamos sonhos em <span className="text-primary font-bold">passaportes.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <Row 
      
@@ -502,6 +430,35 @@ export function Home() {
     
       </div>
 
+{/* Banner entre listas com imagem local */}
+      <section className="max-w-6xl mx-auto px-4 mt-8">
+        <div className="rounded overflow-hidden bg-cover bg-center h-40 md:h-52 flex items-center relative">
+          <img 
+            src={require('../images/png_muito.png')} 
+            alt="" 
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="bg-white/85 w-full h-full flex items-center relative z-10">
+            <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-4 items-center w-full">
+              <div className="flex items-center gap-4">
+                <img 
+                  src={logoFinal} 
+                  alt="Bella Renda & Viagens" 
+                  className="h-12 w-auto opacity-90"
+                />
+              </div>
+      
+              <div className="md:col-span-2 text-xl md:text-2xl font-medium">
+                Na Bella Renda e Viagens, transformamos sonhos em <span className="text-primary font-bold">passaportes.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
       <section className="max-w-6xl mx-auto px-4 mt-16 relative">
         <div className="text-center mb-10">
           <h2 className="text-3xl font-semibold text-gray-800">Por que viajar com a Bella Renda?</h2>
@@ -509,13 +466,11 @@ export function Home() {
         <div className="grid md:grid-cols-4 gap-6 relative z-10">
           {/* ALTERADO: Estilo dos Cards de Benefícios (Fundo principal/rosa escuro) */}
           {[ "Momento só seu", "Suporte desde a reserva até o retorno", "Vivências reais", "Flexibilidade" ].map((text, idx) => (
-          
-            <Card key={idx} className="p-6 text-center bg-primary text-white shadow-lg hover:shadow-xl transition-shadow group">
-              <div className="flex justify-center mb-4 h-16">
+            <Card key={`benefit-${idx}`} className="p-6 text-center bg-primary text-white shadow-lg hover:shadow-xl transition-shadow group">
+              <div key={`benefit-icon-${idx}`} className="flex justify-center mb-4 h-16">
                 <img 
                   src={icLib3} 
                   alt="" 
-                
                   className="h-full w-auto object-contain transition-transform group-hover:scale-110"
                 />
               </div>
