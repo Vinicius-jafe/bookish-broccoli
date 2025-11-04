@@ -86,9 +86,8 @@ export default function ContactForm() {
       // Send data to RD Station (fire and forget)
       await sendLeadToRdStation(leadData);
       
-      // Success!
-      setFormSuccess('Mensagem enviada com sucesso! Entraremos em contato em breve.');
-      form.reset();
+      // Redirect to thank you page
+      window.location.href = '/obrigado';
       
     } catch (error) {
       console.error('Erro ao enviar formulário:', error);

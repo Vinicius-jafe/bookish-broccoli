@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
+import { Banner } from "./Banner";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "../components/ui/carousel";
 import { AspectRatio } from "../components/ui/aspect-ratio";
 import { Separator } from "../components/ui/separator";
@@ -34,8 +35,10 @@ export function NavBar() {
           
           <div className="flex items-center space-x-8">
             <nav className="hidden md:flex items-center space-x-8">
-              <Link className="text-gray-700 hover:text-primary transition-colors" to="/">Início</Link>
-              <a className="text-gray-700 hover:text-primary transition-colors" href="#sobre">Sobre</a>
+              <a href="https://www.instagram.com/bellarendaeviagens/" target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-rose-600 transition-colors">
+                <Instagram className="w-5 h-5" />
+              </a>
+              <Link className="text-gray-700 hover:text-primary transition-colors" to="/sobre">Sobre</Link>
               <Link className="text-gray-700 hover:text-primary transition-colors" to="/pacotes">Roteiros</Link>
             </nav>
             <div className="flex items-center space-x-4">
@@ -75,9 +78,7 @@ export function Footer() {
           <div className="font-semibold mb-2">Contato</div>
        
           <ul className="space-y-2 text-muted-foreground">
-            <li className="flex items-center gap-2"><Phone size={16}/> (84) 99999-0000</li>
             <li className="flex items-center gap-2"><Mail size={16}/> contato@bellarenda.com</li>
-            <li className="flex items-center gap-2"><MapPin size={16}/> Rua Exemplo, 123 - Natal/RN</li>
           </ul>
         </div>
         <div>
@@ -85,7 +86,9 @@ export function Footer() {
  
           <p className="text-muted-foreground">CNPJ 00.000.000/0000-00</p>
           <div className="flex gap-3 mt-3 text-muted-foreground">
-            <a href="#" aria-label="Instagram" className="hover:text-foreground"><Instagram size={18}/></a>
+            <a href="https://www.instagram.com/bellarendaeviagens/" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-rose-600 transition-colors">
+              <Instagram className="w-5 h-5" />
+            </a>
             <a href="#" aria-label="Facebook" className="hover:text-foreground"><Facebook size={18}/></a>
           </div>
         </div>
@@ -247,13 +250,6 @@ function ContactCTA() {
       <div className="mt-8 shadow-lg p-6 md:p-8 rounded-xl bg-pink-600">
         <ContactForm />
       </div>
-
-      <p className="text-center text-sm text-gray-700 mt-6">
-        Ou entre em contato diretamente por{' '}
-        <a href="mailto:contato@bellarenda.com" className="text-pink-600 font-medium hover:underline">
-          contato@bellarenda.com
-        </a>
-      </p>
     </section>
   );
 }
@@ -409,32 +405,8 @@ export function Home() {
     
       </div>
 
-{/* Banner entre listas com imagem local */}
-      <section className="max-w-6xl mx-auto px-4 mt-8">
-        <div className="rounded overflow-hidden bg-cover bg-center h-40 md:h-52 flex items-center relative">
-          <img 
-            src={require('../images/png_muito.png')} 
-            alt="" 
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-black/20"></div>
-          <div className="bg-white/85 w-full h-full flex items-center relative z-10">
-            <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-4 items-center w-full">
-              <div className="flex items-center gap-4">
-                <img 
-                  src={logoFinal} 
-                  alt="Bella Renda & Viagens" 
-                  className="h-12 w-auto opacity-90"
-                />
-              </div>
-      
-              <div className="md:col-span-2 text-xl md:text-2xl font-medium">
-                Na Bella Renda e Viagens, transformamos sonhos em <span className="text-primary font-bold">passaportes.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+{/* Banner Section */}
+      <Banner />
 
 
 

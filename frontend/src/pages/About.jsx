@@ -62,7 +62,7 @@ export default function About() {
               </Link>
             </Button>
             <Button asChild variant="outline" className="border-rose-600 text-rose-600 hover:bg-rose-50 px-8 py-6 text-lg">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.instagram.com/bellarendaeviagens/" target="_blank" rel="noopener noreferrer">
                 <Instagram className="w-5 h-5 mr-2" />
                 Siga-nos no Instagram
               </a>

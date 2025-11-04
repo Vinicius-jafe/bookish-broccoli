@@ -333,7 +333,106 @@ EXISTENTES (Apenas visualização/remoção de paths) */}
 
 
 // ====================================================================
-// COMPONENTE ADMIN (Não alterado, exceto a referência ao PackageForm)
+// BANNER MANAGEMENT COMPONENT
+// ====================================================================
+function BannerManagement() {
+  const [currentBanner, setCurrentBanner] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    fetchCurrentBanner();
+  }, []);
+
+  const fetchCurrentBanner = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/banner');
+      const data = await response.json();
+      if (data.success && data.imageUrl) {
+        setCurrentBanner(`http://localhost:3001${data.imageUrl}`);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar banner:', error);
+    }
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('banner', file);
+
+    setIsUploading(true);
+    try {
+      const response = await fetch('http://localhost:3001/api/banner', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      const data = await response.json();
+      if (response.ok) {
+        setCurrentBanner(`http://localhost:3001${data.imageUrl}`);
+        toast({
+          title: 'Sucesso',
+          description: 'Banner atualizado com sucesso!',
+          variant: 'default',
+        });
+      } else {
+        throw new Error(data.message || 'Erro ao atualizar o banner');
+      }
+    } catch (error) {
+      console.error('Erro ao enviar banner:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível atualizar o banner. Tente novamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  return (
+    <Card className="p-6 mb-8">
+      <h2 className="text-2xl font-bold mb-4">Gerenciar Banner</h2>
+      <div className="space-y-4">
+        <div>
+          <h3 className="font-medium mb-2">Banner Atual:</h3>
+          {currentBanner ? (
+            <div className="relative w-full h-40 overflow-hidden rounded-md border">
+              <img 
+                src={currentBanner} 
+                alt="Banner atual" 
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <p className="text-muted-foreground">Nenhum banner definido</p>
+          )}
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-2">
+            Enviar novo banner:
+          </label>
+          <Input 
+            type="file" 
+            accept="image/*" 
+            onChange={handleFileChange}
+            disabled={isUploading}
+            className="cursor-pointer"
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            Tamanho recomendado: 1200x400px. Formatos: JPG, PNG, WEBP
+          </p>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+// ====================================================================
+// COMPONENTE ADMIN
 // ====================================================================
 export default function Admin() {
 // ... código do componente Admin (mantido o mesmo)
@@ -422,9 +521,16 @@ export default function Admin() {
 
   return (
     <SiteShell>
-      <section className="max-w-6xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold">Gerenciar Pacotes</h1>
+      <div className="container mx-auto py-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Painel Administrativo</h1>
+        </div>
+        
+        {/* Banner Management Section */}
+        <BannerManagement />
+        
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-2xl font-semibold">Pacotes</h2>
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => startEdit(null)}>
               Novo pacote
@@ -484,8 +590,7 @@ export default function Admin() {
             </Card>
           ))}
         </div>
-      
-      </section>
+      </div>
     </SiteShell>
   );
 }
