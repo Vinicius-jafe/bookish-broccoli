@@ -59,8 +59,10 @@
   },
   "scripts": {
     "start": "craco start",
+    "prebuild": "npm run lint -- --fix",
     "build": "CI=false craco build",
-    "test": "craco test"
+    "test": "craco test",
+    "lint": "eslint ."
   },
   "browserslist": {
     "production": [
