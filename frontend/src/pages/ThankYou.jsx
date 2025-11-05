@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
 import { Button } from '../components/ui/button';
+
 import logoFinal from '../images/logo-final.jpg';
 import libelula from '../images/IC-LIB-2.png';
 
@@ -23,26 +24,19 @@ export default function ThankYou() {
       {/* Conteúdo Central */}
       <div className="relative z-10 max-w-lg mx-auto">
         {/* Logo */}
-        <img
-          src={logoFinal}
-          alt="Bella Renda & Viagens"
-          className="w-48 mx-auto mb-8"
-        />
+        <img src={logoFinal} alt="Bella Renda & Viagens" className="w-48 mx-auto mb-8" />
 
         {/* Mensagem */}
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 mb-8">
-          <h1 className="text-3xl font-bold text-white mb-6">
-            OBRIGADA PELO SEU CONTATO!
-          </h1>
+          <h1 className="text-3xl font-bold text-white mb-6">OBRIGADA PELO SEU CONTATO!</h1>
 
           <p className="text-white text-lg mb-6">
-            Sua mensagem foi enviada com sucesso! Em breve nossa equipe entrará
-            em contato.
+            Sua mensagem foi enviada com sucesso! Em breve nossa equipe entrará em contato.
           </p>
 
           <p className="text-white/90 mb-6">
-            Enquanto isso, não deixe de nos seguir nas redes sociais para ficar
-            por dentro de todas as novidades e promoções!
+            Enquanto isso, não deixe de nos seguir nas redes sociais para ficar por dentro de todas as
+            novidades e promoções!
           </p>
 
           <div className="flex flex-col space-y-4">
