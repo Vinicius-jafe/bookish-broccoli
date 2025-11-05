@@ -61,6 +61,24 @@ router.get('/', (req, res) => {
   }
 });
 
+// Function to delete all files in the banners directory except for the one we just uploaded
+function deleteExistingBanners(exceptFilename = '') {
+  const bannerDir = path.join(__dirname, '../uploads/banners');
+  if (!fs.existsSync(bannerDir)) {
+    return;
+  }
+  
+  const files = fs.readdirSync(bannerDir);
+  files.forEach(file => {
+    if (file === exceptFilename) return; // Skip the file we just uploaded
+    try {
+      fs.unlinkSync(path.join(bannerDir, file));
+    } catch (err) {
+      console.error(`Error deleting file ${file}:`, err);
+    }
+  });
+}
+
 // Upload new banner
 router.post('/', (req, res, next) => {
   upload.single('banner')(req, res, function(err) {
@@ -86,6 +104,9 @@ router.post('/', (req, res, next) => {
       if (!fs.existsSync(filePath)) {
         throw new Error('O arquivo não foi salvo corretamente');
       }
+      
+      // Delete any other banner files (except the one we just uploaded)
+      deleteExistingBanners(req.file.filename);
       
       res.json({ 
         success: true, 

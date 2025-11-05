@@ -13,7 +13,12 @@
     "migrate": "node scripts/migrate.js",
     "seed": "node scripts/seed.js"
   },
-  "keywords": ["api", "express", "rdstation", "bellare-viagens"],
+  "keywords": [
+    "api",
+    "express",
+    "rdstation",
+    "bellare-viagens"
+  ],
   "author": "Sua Empresa <contato@empresa.com>",
   "license": "MIT",
   "dependencies": {
@@ -29,6 +34,7 @@
     "winston": "^3.11.0"
   },
   "devDependencies": {
+    "cross-env": "^10.1.0",
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.0",

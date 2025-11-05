@@ -24,27 +24,27 @@ if (!fs.existsSync(uploadsDir)) {
 const app = express();
 
 // Configuração do CORS
-const allowedOrigins = [
-  'http://localhost:3000', // Frontend local
-  'https://bookish-broccoli-nue4.onrender.com', // Frontend no Render (se aplicável)
-  'https://bellarendaviagesn.netlify.app' // Seu domínio de produção
-];
-
 app.use(cors({
-  origin: function(origin, callback) {
-    // Permite requisições sem origem (como aplicativos móveis ou curl)
-    if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'A política de CORS para este site não permite acesso a partir da origem especificada.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
+  origin: '*', // Permite todas as origens (em produção, substitua por suas origens específicas)
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Cache-Control', 'Pragma'],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  exposedHeaders: ['Cache-Control', 'Pragma']
 }));
+
+// Middleware para adicionar headers CORS manualmente (backup)
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  
+  // Intercept OPTIONS method
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 // Middleware para log de requisições
 app.use((req, res, next) => {
