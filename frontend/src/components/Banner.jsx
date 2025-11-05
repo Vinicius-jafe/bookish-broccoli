@@ -1,13 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { styled, useTheme } from '@mui/material/styles';
-import { Skeleton, Button, Box, Typography, Container } from '@mui/material';
+import {
+  Box,
+  Button,
+  Container,
+  Skeleton,
+  Typography,
+} from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import logoImage from '../images/logo-final.jpg';
 
 const API_BASE_URL = 'http://localhost:4000';
 
+// Styled Component para o Container principal do banner
 const BannerContainer = styled('div')(({ theme }) => ({
   position: 'relative',
   width: '100%',
@@ -93,7 +100,7 @@ export default function Banner() {
       setLoading(true);
       setError(null);
       const response = await fetch(`${API_BASE_URL}/api/banner`);
-      // Check if the response is JSON before trying to parse it
+
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();
@@ -102,12 +109,13 @@ export default function Banner() {
           `Resposta inesperada do servidor: ${response.status} ${response.statusText}`
         );
       }
+
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || `Erro ao carregar banner: ${response.status}`);
       }
+
       if (data.success && data.imageUrl) {
-        // Ensure the URL is absolute
         const imageUrl = data.imageUrl.startsWith('http')
           ? data.imageUrl
           : `${API_BASE_URL}${data.imageUrl}`;
