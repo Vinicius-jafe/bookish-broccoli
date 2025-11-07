@@ -411,9 +411,13 @@ export function Home() {
               Com a Bella Renda e Viagens, mulheres que sonham em explorar o mundo ganham um roteiro
               feito para se sentirem livres, seguras e inspiradas.
             </p>
-            <Button className="bg-primary hover:bg-primary/90 text-white rounded-full px-8 py-3 text-lg font-semibold shadow-lg transform transition-all duration-300 hover:scale-105">
-              Ver roteiros
-            </Button>
+            <Link to="/pacotes">
+              <Button 
+                className="bg-primary hover:bg-primary/90 text-white rounded-full px-8 py-3 text-lg font-semibold shadow-lg transform transition-all duration-300 hover:scale-105"
+              >
+                Ver roteiros
+              </Button>
+            </Link>
           </div>
 
           {/* Imagens sobrepostas */}
@@ -477,8 +481,8 @@ export function Home() {
         </div>
       </div>
 
-      {/* Popular Packages */}
-      <div className="relative overflow-hidden">
+      {/* Seção de Pacotes */}
+      <div id="pacotes" className="relative overflow-hidden pt-16 -mt-16">
         <div className="relative z-10">
           <Row
             title="Roteiros Internacionais"

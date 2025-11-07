@@ -18,17 +18,36 @@ const API_BASE_URL = 'http://localhost:4000';
 const BannerContainer = styled('div')(({ theme }) => ({
   position: 'relative',
   width: '100%',
-  height: '350px',
+  maxWidth: '1920px', // Largura máxima para monitores grandes
+  height: '500px', // Altura fixa para desktop
+  margin: '0 auto', // Centraliza o banner
   display: 'flex',
   alignItems: 'center',
   backgroundSize: 'cover',
-  backgroundPosition: 'center',
+  backgroundPosition: 'center center',
   backgroundRepeat: 'no-repeat',
   borderRadius: theme.shape.borderRadius,
   overflow: 'hidden',
   boxShadow: theme.shadows[3],
+  [theme.breakpoints.down('lg')]: {
+    height: '400px',
+  },
   [theme.breakpoints.down('md')]: {
-    height: '280px',
+    height: '350px',
+  },
+  [theme.breakpoints.down('sm')]: {
+    height: '250px',
+  },
+  // Garante que a imagem de fundo cubra toda a área
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)', // Overlay mais claro para melhor visualização das cores
+    zIndex: 1,
   },
 }));
 
@@ -72,7 +91,7 @@ const TextContainer = styled('div')(({ theme }) => ({
     marginBottom: theme.spacing(1.5),
     lineHeight: 1.2,
     color: theme.palette.common.white,
-    textShadow: '1px 1px 3px rgba(0,0,0,0.5)',
+    textShadow: '1px 1px 5px rgba(0,0,0,0.8), -1px -1px 5px rgba(0,0,0,0.5)',
     [theme.breakpoints.down('md')]: {
       fontSize: '1.8rem',
     },
@@ -208,11 +227,30 @@ export default function Banner() {
     );
   }
 
+  // Função para obter a melhor resolução da imagem baseada no tamanho da tela
+  const getOptimizedImageUrl = (url) => {
+    if (!url) return '';
+    
+    // Se a imagem já tiver parâmetros de consulta, adicionamos os nossos
+    const separator = url.includes('?') ? '&' : '?';
+    
+    // Aumentando a qualidade e saturação da imagem
+    return `${url}${separator}auto=format&fit=max&w=1920&q=90&sat=1.2`;
+  };
+
   return (
     <BannerContainer
       style={{
-        backgroundImage: `url(${banner.imageUrl})`,
+        // Reduzindo a opacidade do overlay para 0.1 (10%) para deixar mais claro
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url(${getOptimizedImageUrl(banner.imageUrl)})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        // Aumentando o brilho da imagem
+        filter: 'brightness(1.05)',
       }}
+      role="img"
+      aria-label={banner.alt || 'Banner promocional'}
     >
       <ContentWrapper maxWidth="lg">
         <LogoContainer>
