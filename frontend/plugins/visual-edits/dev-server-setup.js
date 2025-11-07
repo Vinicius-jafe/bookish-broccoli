@@ -2,8 +2,9 @@
 // Dev server middleware configuration for visual editing
 const fs = require("fs");
 const path = require("path");
-const express = require("express");
 const { execSync } = require("child_process");
+
+const express = require("express");
 
 // 🔍 Read Supervisor code-server password from conf.d
 function getCodeServerPassword() {
