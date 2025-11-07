@@ -9,7 +9,6 @@ module.exports = {
     'eslint:recommended',
     'plugin:import/errors',
     'plugin:import/warnings',
-    'plugin:prettier/recommended',
   ],
   parserOptions: {
     ecmaVersion: 'latest',
@@ -36,7 +35,6 @@ module.exports = {
     ],
     'import/no-unresolved': 'off',
     'import/extensions': 'off',
-    'prettier/prettier': 'error',
   },
   settings: {
     'import/resolver': {
