@@ -1,77 +1,77 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# 📦 Node e dependências
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-# Environment variables
+# 🔧 Build e cache
+/build
+/dist
+.cache/
+/coverage
+
+# ⚙️ Ambiente e variáveis locais
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+*.env.*
 
-# IDE and editors
+# 💻 IDEs e ferramentas
 .idea/
 .vscode/
+*.code-workspace
 
-# Dependencies
-node_modules/
-/node_modules
-/.pnp
+# 🧪 Testes
+jest-html-reporters-*
+*.tsbuildinfo
+
+# 📁 Vercel e Deploy
+.vercel
+.vercel_build_output
+
+# 📦 Yarn Plug’n’Play
+.pnp
 .pnp.js
-.yarn/install-state.gz
 .yarn/*
 !.yarn/patches
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
 
-# Testing
-/coverage
-
-# Next.js
-/.next/
-/out/
+# ⚛️ Next.js (caso tenha)
+.next/
+out/
 next-env.d.ts
-*.tsbuildinfo
 
-# Production builds
-/build
-dist/
-dist
-
-# Environment files (comprehensive coverage)
-
+# 🔐 Credenciais e tokens
 *token.json*
 *credentials.json*
-
-# Logs and debug files
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-dump.rdb
-
-# System files
-.DS_Store
 *.pem
 
-# Python
+# 💾 Sistema e caches
+.DS_Store
+Thumbs.db
+dump.rdb
+
+# 🐍 Python (caso tenha scripts auxiliares)
 __pycache__/
-*pyc*
+*.pyc
 venv/
 .venv/
 
-# Development tools
-chainlit.md
+# 📱 Mobile (caso tenha)
+android/
+android-sdk/
+
+# 🧩 Outros
 .chainlit
+chainlit.md
 .ipynb_checkpoints/
 .ac
-
-# Deployment
-.vercel
-
-# Data and databases
 agenthub/agents/youtube/db
-
-# Archive files and large assets
 **/*.zip
 **/*.tar.gz
 **/*.tar
@@ -79,9 +79,3 @@ agenthub/agents/youtube/db
 *.pack
 *.deb
 *.dylib
-
-# Build caches
-.cache/
-
-# Mobile development
-android-sdk/ 
