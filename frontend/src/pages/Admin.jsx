@@ -510,7 +510,6 @@ export default function Admin() {
             <Button type="submit" className="w-full">
               Entrar
             </Button>
-            <div className="text-xs text-muted-foreground">Use admin@site.com / admin123</div>
           </form>
         </div>
       </SiteShell>
