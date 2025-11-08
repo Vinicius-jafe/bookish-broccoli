@@ -1,5 +1,9 @@
 // Configurações da API
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
+if (!API_BASE_URL) {
+  console.error('A variável de ambiente REACT_APP_API_URL não está definida');
+}
 
 export const API_URL = {
   BASE: API_BASE_URL,
