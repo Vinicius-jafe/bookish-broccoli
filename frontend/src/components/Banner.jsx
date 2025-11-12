@@ -12,7 +12,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 
 import logoImage from '../images/logo-final.jpg';
 
-const API_BASE_URL = 'http://localhost:4000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
 
 // Styled Component para o Container principal do banner
 const BannerContainer = styled('div')(({ theme }) => ({
@@ -118,7 +118,7 @@ export default function Banner() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${API_BASE_URL}/api/banner`);
+      const response = await fetch(`${API_BASE_URL}/banner`);
 
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
