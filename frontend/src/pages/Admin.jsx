@@ -16,8 +16,8 @@ import { Card } from '../components/ui/card';
 import { Textarea } from '../components/ui/textarea';
 import { toast } from '../hooks/use-toast';
 import { SiteShell } from '../components/SiteShell';
-// Presumindo a existência de PackageCarousel em '../components/PackageCarousel'
-import { PackageCarousel } from '../components/PackageCarousel';
+// Importing PackageCarousel from Packages component
+import { PackageCarousel } from './Packages';
 import {
   isAdmin,
   loginAdmin,
