@@ -201,7 +201,7 @@ export function PackageCard({ pkg, compact = false }) {
 // ... (Código anterior do arquivo SiteShell.jsx)
 
 // === Row Component (CORRIGIDO: Sintaxe do map) ===
-function Row({ title, subtitle, filter, primaryColor = false }) {
+export function Row({ title, subtitle, filter, primaryColor = false }) {
   const [pkgs, setPkgs] = useState([]);
   const [loading, setLoading] = useState(true);
 

@@ -35,7 +35,7 @@ function useQuery() {
 }
 
 // Componente de carrossel isolado
-function PackageCarousel({ images = [], title }) {
+export function PackageCarousel({ images = [], title }) {
   if (!images.length) return null;
   return (
     <Carousel>
