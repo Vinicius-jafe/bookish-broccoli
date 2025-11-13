@@ -14,14 +14,18 @@ import bannerRoutes from "./routes/banner.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Garante que a pasta de uploads exista
-const uploadsDir = path.join(__dirname, "uploads", "banners");
-if (!fs.existsSync(path.join(__dirname, "uploads"))) {
-  fs.mkdirSync(path.join(__dirname, "uploads"));
-}
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
+// Ensure upload directories exist
+const uploadDirs = [
+  path.join(__dirname, 'uploads', 'banners'),
+  path.join(__dirname, 'uploads', 'packages')
+];
+
+uploadDirs.forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    console.log(`Created directory: ${dir}`);
+  }
+});
 
 const app = express();
 
@@ -41,13 +45,18 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Nota: `!origin` permite requisições do mesmo domínio ou ferramentas como Postman
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.error(`Origem não permitida pelo CORS: ${origin}`);
-        callback(new Error(`Origem não permitida pelo CORS: ${origin}`));
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      // Check if the origin is in the allowed list or matches patterns
+      if (allowedOrigins.includes(origin) || 
+          origin.endsWith('.vps-kinghost.net') || 
+          origin.includes('localhost')) {
+        return callback(null, true);
       }
+      
+      console.error(`Origem não permitida pelo CORS: ${origin}`);
+      return callback(new Error('Not allowed by CORS'));
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: [
@@ -82,6 +91,20 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // ===============================
 // Rotas principais
 // ===============================
+// API Root Route
+app.get('/api', (req, res) => {
+  res.json({
+    name: "API Bellare Viagens",
+    version: "1.0.0",
+    status: "ok",
+    endpoints: {
+      auth: "/api/auth",
+      packages: "/api/packages",
+      banner: "/api/banner"
+    }
+  });
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/packages", packagesRoutes);
 app.use("/api/banner", bannerRoutes);

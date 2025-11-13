@@ -7,7 +7,9 @@ export function imageUrl(p) {
   if (!p) return p;
   if (/^https?:\/\//i.test(p)) return p;
   const normalized = p.startsWith('/') ? p : `/${p}`;
-  return `${API_ORIGIN}${normalized}`;
+  // Remove /api from the path if it exists
+  const cleanPath = normalized.replace(/^\/?api\//, '');
+  return `${API_ORIGIN}${cleanPath}`;
 }
 
 // Função auxiliar para obter o token
