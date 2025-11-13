@@ -88,9 +88,12 @@ export function Footer() {
       <div className="max-w-6xl mx-auto px-4 py-10 grid md:grid-cols-4 gap-8 text-sm">
         <div>
           <img
-            src={logoFinal}
+            src={getLogoUrl()}
             alt="Bella Renda & Viagens"
             className="h-16 w-auto mb-4 opacity-90"
+            onError={(e) => {
+              e.target.src = 'https://via.placeholder.com/150x50?text=Bella+Renda';
+            }}
           />
           <p className="text-muted-foreground">
             Roteiros personalizados e experiências inesquecíveis.
@@ -368,6 +371,7 @@ export function Home() {
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [featuredPackages, setFeaturedPackages] = useState([]);
+  
   useEffect(() => {
     fetchPackages()
       .then((data) => {
@@ -378,6 +382,9 @@ export function Home() {
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, []);
+  
+  // Get the logo URL
+  const logoUrl = getLogoUrl();
   return (
     <SiteShell>
       {/* 1. HERO SECTION */}
