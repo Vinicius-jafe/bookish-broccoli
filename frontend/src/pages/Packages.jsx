@@ -36,51 +36,72 @@ function useQuery() {
 
 // Componente de carrossel isolado - Estilo igual ao do site principal
 export function PackageCarousel({ images = [], title, className = '' }) {
+  const carouselId = `carousel-${title?.toLowerCase().replace(/\s+/g, '-') || 'images'}`;
+  
   if (!images.length) return null;
   
   return (
     <div className={`relative group ${className}`}>
-      <Carousel
-        opts={{
-          align: 'start',
-          loop: true,
+      {/* Container rolável */}
+      <div 
+        id={carouselId}
+        className="overflow-x-auto pb-6 -mx-4 px-4 scrollbar-hide"
+        style={{
+          scrollbarWidth: 'none', // Firefox
+          msOverflowStyle: 'none', // IE and Edge
+          '&::-webkit-scrollbar': { // Chrome, Safari and Opera
+            display: 'none'
+          }
         }}
-        className="w-full"
       >
-        <CarouselContent>
+        <div className="flex space-x-6 w-max">
           {images.map((src, idx) => (
-            <CarouselItem key={idx} className="basis-full">
+            <div key={idx} className="w-[300px] sm:w-[400px] md:w-[500px] lg:w-[600px] flex-shrink-0">
               <div className="relative overflow-hidden rounded-xl">
                 <AspectRatio ratio={16 / 9}>
                   <img
                     src={imageUrl(src)}
-                    alt={`${title} - Imagem ${idx + 1}`}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    alt={`${title || 'Imagem'} ${idx + 1}`}
+                    className="w-full h-full object-cover"
                   />
                 </AspectRatio>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
               </div>
-            </CarouselItem>
+            </div>
           ))}
-        </CarouselContent>
-        <CarouselPrevious className="left-4 h-10 w-10 rounded-full bg-white/90 text-gray-900 shadow-md hover:bg-white transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110" />
-        <CarouselNext className="right-4 h-10 w-10 rounded-full bg-white/90 text-gray-900 shadow-md hover:bg-white transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110" />
-        
-        {/* Indicadores de slide */}
-        <div className="absolute bottom-4 left-0 right-0">
-          <div className="flex justify-center gap-2">
-            {images.map((_, idx) => (
-              <button
-                key={idx}
-                className={`h-2 w-2 rounded-full transition-all ${
-                  idx === 0 ? 'bg-white w-6' : 'bg-white/50 w-2'
-                }`}
-                aria-label={`Ir para slide ${idx + 1}`}
-              />
-            ))}
-          </div>
         </div>
-      </Carousel>
+      </div>
+      
+      {/* Botão de navegação esquerda */}
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+        <button 
+          onClick={() => {
+            const container = document.getElementById(carouselId);
+            if (container) container.scrollBy({ left: -300, behavior: 'smooth' });
+          }}
+          className="bg-white/80 hover:bg-white text-primary rounded-full p-2 shadow-lg"
+          aria-label="Voltar"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
+      </div>
+      
+      {/* Botão de navegação direita */}
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+        <button 
+          onClick={() => {
+            const container = document.getElementById(carouselId);
+            if (container) container.scrollBy({ left: 300, behavior: 'smooth' });
+          }}
+          className="bg-white/80 hover:bg-white text-primary rounded-full p-2 shadow-lg"
+          aria-label="Avançar"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </button>
+      </div>
     </div>
   );
 }
