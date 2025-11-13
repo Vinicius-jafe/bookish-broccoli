@@ -154,14 +154,16 @@ export function PackageCard({ pkg, compact = false }) {
             {pkg.type}
           </Badge>
         </div>
-        <CardHeader>
-          <CardTitle className="text-base leading-tight line-clamp-2">{pkg.title}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-sm text-muted-foreground">{pkg.destination}</div>
-          <div className="mt-2 font-semibold text-primary">
-            A partir de R$ {pkg.priceFrom?.toLocaleString('pt-BR')}
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-start">
+            <CardTitle className="text-base leading-tight line-clamp-2 pr-2">{pkg.title}</CardTitle>
+            <div className="font-semibold text-primary whitespace-nowrap">
+              R$ {pkg.priceFrom?.toLocaleString('pt-BR')}
+            </div>
           </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="text-sm text-muted-foreground">{pkg.destination}</div>
           <Link to={`/pacotes/${pkg.slug}`} className="inline-block mt-3">
             <Button className="bg-primary hover:bg-primary/90">Detalhes</Button>
           </Link>
@@ -181,8 +183,11 @@ export function PackageCard({ pkg, compact = false }) {
         />
       </AspectRatio>
       {/* Container branco semi-transparente no fundo */}
-      <div className="absolute inset-x-0 bottom-0 bg-white/95 backdrop-blur-sm p-3 text-center rounded-t-md">
-        <div className="text-base font-semibold text-gray-800">{pkg.destination}</div>
+      <div className="absolute inset-x-0 bottom-0 bg-white/95 backdrop-blur-sm p-3 rounded-t-md">
+        <div className="flex justify-between items-center">
+          <div className="text-base font-semibold text-gray-800">{pkg.destination}</div>
+          <div className="font-semibold text-primary">R$ {pkg.priceFrom?.toLocaleString('pt-BR')}</div>
+        </div>
         <Link to={`/pacotes/${pkg.slug}`}>
           {/* Botão de cor primária mais escura (--button-on-primary) para contraste no fundo claro */}
           <Button

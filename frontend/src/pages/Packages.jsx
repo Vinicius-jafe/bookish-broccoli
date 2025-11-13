@@ -69,19 +69,35 @@ export function PackagesList() {
   const [duration, setDuration] = useState([1, 10]);
   const [month, setMonth] = useState('todas');
 
-  const [pkgs, setPkgs] = useState([]); // estado para pacotes
+  const [pkgs, setPkgs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true; // Flag to prevent state updates after unmount
+    
     async function fetchPackages() {
       try {
         const data = await loadPackages();
-        setPkgs(data);
+        // Remove duplicates based on ID to ensure each package is unique
+        if (isMounted) {
+          const uniquePackages = Array.from(new Map(data.map(pkg => [pkg.id, pkg])).values());
+          setPkgs(uniquePackages);
+          setIsLoading(false);
+        }
       } catch (err) {
         console.error('Erro ao carregar pacotes:', err);
-        toast({ title: 'Erro ao carregar pacotes' });
+        if (isMounted) {
+          toast({ title: 'Erro ao carregar pacotes' });
+          setIsLoading(false);
+        }
       }
     }
+    
     fetchPackages();
+    
+    return () => {
+      isMounted = false; // Cleanup function to prevent state updates after unmount
+    };
   }, []);
 
   const regions = useMemo(
