@@ -34,27 +34,54 @@ function useQuery() {
   return React.useMemo(() => new URLSearchParams(search), [search]);
 }
 
-// Componente de carrossel isolado
-export function PackageCarousel({ images = [], title }) {
+// Componente de carrossel isolado - Estilo igual ao do site principal
+export function PackageCarousel({ images = [], title, className = '' }) {
   if (!images.length) return null;
+  
   return (
-    <Carousel>
-      <CarouselContent>
-        {images.map((src, idx) => (
-          <CarouselItem key={idx} className="pr-4">
-            <AspectRatio ratio={16 / 9}>
-              <img
-                src={imageUrl(src)}
-                alt={`${title}-${idx}`}
-                className="w-full h-full object-cover rounded-md"
+    <div className={`relative group ${className}`}>
+      <Carousel
+        opts={{
+          align: 'start',
+          loop: true,
+        }}
+        className="w-full"
+      >
+        <CarouselContent>
+          {images.map((src, idx) => (
+            <CarouselItem key={idx} className="basis-full">
+              <div className="relative overflow-hidden rounded-xl">
+                <AspectRatio ratio={16 / 9}>
+                  <img
+                    src={imageUrl(src)}
+                    alt={`${title} - Imagem ${idx + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </AspectRatio>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious className="left-4 h-10 w-10 rounded-full bg-white/90 text-gray-900 shadow-md hover:bg-white transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110" />
+        <CarouselNext className="right-4 h-10 w-10 rounded-full bg-white/90 text-gray-900 shadow-md hover:bg-white transition-all duration-200 opacity-0 group-hover:opacity-100 hover:scale-110" />
+        
+        {/* Indicadores de slide */}
+        <div className="absolute bottom-4 left-0 right-0">
+          <div className="flex justify-center gap-2">
+            {images.map((_, idx) => (
+              <button
+                key={idx}
+                className={`h-2 w-2 rounded-full transition-all ${
+                  idx === 0 ? 'bg-white w-6' : 'bg-white/50 w-2'
+                }`}
+                aria-label={`Ir para slide ${idx + 1}`}
               />
-            </AspectRatio>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
-    </Carousel>
+            ))}
+          </div>
+        </div>
+      </Carousel>
+    </div>
   );
 }
 
