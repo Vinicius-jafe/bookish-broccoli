@@ -274,9 +274,9 @@ export function Row({ title, subtitle, filter, primaryColor = false, packages = 
             }}
           >
             <div className="flex space-x-6 w-max">
-              {[...pkgs, ...pkgs].map((p, index) => (
-                <div key={`${p.id}-${index}`} className="w-72 flex-shrink-0">
-                  <PackageCard pkg={p} compact={true} />
+              {filteredPkgs.map((pkg) => (
+                <div key={pkg.id} className="w-72 flex-shrink-0">
+                  <PackageCard pkg={pkg} compact={true} />
                 </div>
               ))}
             </div>
