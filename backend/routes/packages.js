@@ -123,8 +123,12 @@ router.post("/upload-images", upload.array('images', 5), async (req, res) => {
         return res.status(400).json({ error: "Nenhum arquivo enviado ou formato inválido." });
     }
 
-    // Retorna os caminhos salvos no servidor para o frontend
-    const filePaths = req.files.map(file => file.path); 
+    // Retorna os caminhos relativos para o frontend
+    const filePaths = req.files.map(file => {
+      // Remove o caminho base do servidor, mantendo apenas o caminho relativo
+      const relativePath = file.path.replace(/^.*?\/uploads\//, '/uploads/');
+      return relativePath;
+    });
     
     res.json({ 
         ok: true, 
