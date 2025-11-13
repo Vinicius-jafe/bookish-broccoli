@@ -205,19 +205,13 @@ export function PackageCard({ pkg, compact = false }) {
 // === Row Component (ALTERADO: Header e bordas para combinar com a imagem) ===
 // ... (Código anterior do arquivo SiteShell.jsx)
 
-// === Row Component (CORRIGIDO: Sintaxe do map) ===
-export function Row({ title, subtitle, filter, primaryColor = false }) {
-  const [pkgs, setPkgs] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchPackages()
-      .then((data) => setPkgs(data.filter(filter)))
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
-  }, [filter]);
-  if (loading) return <div className="text-center py-6">Carregando...</div>;
-  if (!pkgs.length)
+// === Row Component (ATUALIZADO: Remove o fetch duplicado)
+export function Row({ title, subtitle, filter, primaryColor = false, packages = [] }) {
+  // Filtra os pacotes com base no filtro fornecido
+  const filteredPkgs = useMemo(() => {
+    return packages.filter(filter);
+  }, [packages, filter]);
+  if (!filteredPkgs.length)
     return (
       <section className="max-w-6xl mx-auto px-4 mt-12">
         <div className="p-4 rounded-lg bg-muted text-muted-foreground text-center text-sm">
@@ -470,6 +464,7 @@ export function Home() {
           subtitle="Roteiros mais procurados"
           filter={(p) => p.featuredHome === true}
           primaryColor={true}
+          packages={packages}
         />
       </div>
 
@@ -478,6 +473,7 @@ export function Home() {
         subtitle="Roteiros mais procurados"
         filter={(p) => p.type === 'nacional'}
         primaryColor={false}
+        packages={packages}
       />
 
       <div className="relative">
@@ -495,6 +491,7 @@ export function Home() {
             filter={(p) => p.type === 'internacional'}
             primaryColor="hsl(208, 74%, 36%)"
             buttonColor="hsl(210, 67%, 21%)"
+            packages={packages}
           >
             {packages
               .filter((pkg) => pkg.type === 'internacional')
