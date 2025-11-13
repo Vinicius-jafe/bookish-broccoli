@@ -30,14 +30,12 @@ const app = express();
 // ===============================
 const allowedOrigins = [
   "https://bellarenda.vps-kinghost.net", // domínio de produção (HTTPS)
-  "http://localhost:3000",              // opcional para testes locais
-  
-  // FIX: Adicionar o IP do servidor (sem porta) para lidar com requisições que usam o IP como origem
-  // O frontend pode estar rodando na porta padrão (80/443) e chamando a API pela porta 4000
-  "http://177.153.60.151",
-  "https://177.153.60.151",
-  // Se o frontend estiver rodando em uma porta específica no IP, adicione-a aqui:
-  "http://177.153.60.151:*"
+  "http://localhost:3000",              // para desenvolvimento local
+  "http://localhost:4000",              // API local
+  "http://177.153.60.151",              // IP sem porta (HTTP)
+  "https://177.153.60.151",             // IP sem porta (HTTPS)
+  "http://177.153.60.151:3000",         // Frontend no IP com porta 3000
+  "https://177.153.60.151:3000"         // Frontend HTTPS no IP com porta 3000
 ];
 
 app.use(
