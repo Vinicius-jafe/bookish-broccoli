@@ -255,6 +255,13 @@ export function PackagesList() {
   );
 }
 
+import logoImage from '../images/logo-final.jpg';
+
+// Função auxiliar para obter a URL da logo
+export function getLogoUrl() {
+  return logoImage;
+}
+
 // Detalhe do pacote
 export function PackageDetail() {
   const { slug } = useParams();

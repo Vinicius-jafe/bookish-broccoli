@@ -30,10 +30,12 @@ import { loadPackages as fetchPackages, imageUrl } from '../services/api'; // AP
 import ContactForm from './ContactForm';
 
 // Importando as imagens
-import logoFinal from '../images/logo-final.jpg';
 import icLibVoando from '../images/IC-LIB-VOANDO.png';
 import icLibVoando1 from '../images/IC-LIB-VOANDO-1.png';
 import icLib3 from '../images/IC-LIB-3.png';
+
+// Importa a função getLogoUrl
+import { getLogoUrl } from '../pages/Packages';
 // === NavBar Component ===
 export function NavBar() {
   const nav = useNavigate();
@@ -42,7 +44,15 @@ export function NavBar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex-shrink-0">
-            <img src={logoFinal} alt="Bella Renda & Viagens" className="h-16 w-auto" />
+            <img 
+              src={getLogoUrl()} 
+              alt="Bella Renda & Viagens" 
+              className="h-16 w-auto"
+              onError={(e) => {
+                // Fallback para um placeholder se a imagem não carregar
+                e.target.src = 'https://via.placeholder.com/150x50?text=Bella+Renda';
+              }}
+            />
           </Link>
 
           <div className="flex items-center space-x-8">
