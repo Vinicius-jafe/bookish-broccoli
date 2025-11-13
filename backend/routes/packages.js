@@ -11,7 +11,7 @@ const router = express.Router();
 // CONFIGURAÇÃO DO MULTER PARA UPLOAD DE IMAGENS
 // ----------------------------------------------------
 
-const UPLOAD_DIR = 'uploads/';
+const UPLOAD_DIR = '/var/www/uploads/packages/';
 
 // Garante que o diretório de uploads existe. 
 // Isso é importante, pois alguns serviços de deploy podem não manter a pasta.

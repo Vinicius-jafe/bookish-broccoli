@@ -87,7 +87,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Servir arquivos estáticos (imagens, uploads, etc.)
 // Handle both /uploads and /api/uploads paths for backward compatibility
-const uploadsPath = path.join(__dirname, 'uploads');
+const uploadsPath = '/var/www/uploads';
 app.use('/uploads', express.static(uploadsPath));
 app.use('/api/uploads', express.static(uploadsPath));
 
