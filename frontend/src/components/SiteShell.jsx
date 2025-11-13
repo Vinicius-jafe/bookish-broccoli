@@ -1,5 +1,5 @@
 // Agrupados para fins de separação, mas idealmente estariam em arquivos como SiteShell.jsx e Home.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
