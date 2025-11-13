@@ -87,8 +87,15 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Servir arquivos estáticos (imagens, uploads, etc.)
 // Handle both /uploads and /api/uploads paths for backward compatibility
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use("/api/uploads", express.static(path.join(__dirname, "uploads")));
+const uploadsPath = path.join(__dirname, 'uploads');
+app.use('/uploads', express.static(uploadsPath));
+app.use('/api/uploads', express.static(uploadsPath));
+
+// Log static file serving configuration
+console.log('Serving static files from:', uploadsPath);
+console.log('Available routes:');
+console.log(`- /uploads/* -> ${uploadsPath}/*`);
+console.log(`- /api/uploads/* -> ${uploadsPath}/*`);
 
 // ===============================
 // Rotas principais
