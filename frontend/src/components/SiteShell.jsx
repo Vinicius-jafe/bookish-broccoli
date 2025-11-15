@@ -38,25 +38,37 @@ import icLib3 from '../images/IC-LIB-3.png';
 import { getLogoUrl } from '../pages/Packages';
 // === NavBar Component ===
 export function NavBar() {
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const nav = useNavigate();
+  
+  // Fechar menu ao mudar de rota
+  React.useEffect(() => {
+    const handleRouteChange = () => {
+      setIsMenuOpen(false);
+    };
+    
+    window.addEventListener('popstate', handleRouteChange);
+    return () => window.removeEventListener('popstate', handleRouteChange);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur border-b">
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex-shrink-0">
             <img 
               src={getLogoUrl()} 
               alt="Bella Renda & Viagens" 
-              className="h-16 w-auto"
+              className="h-12 md:h-16 w-auto"
               onError={(e) => {
-                // Fallback para um placeholder se a imagem não carregar
                 e.target.src = 'https://via.placeholder.com/150x50?text=Bella+Renda';
               }}
             />
           </Link>
 
-          <div className="flex items-center space-x-8">
-            <nav className="hidden md:flex items-center space-x-8">
+          {/* Menu Desktop */}
+          <div className="hidden md:flex items-center space-x-8">
+            <nav className="flex items-center space-x-8">
               <Link className="text-gray-700 hover:text-primary transition-colors" to="/sobre">
                 Sobre
               </Link>
@@ -65,7 +77,7 @@ export function NavBar() {
               </Link>
             </nav>
             <div className="flex items-center space-x-4">
-              <Link to="/#contato" className="hidden md:block">
+              <Link to="/#contato">
                 <Button className="bg-primary hover:bg-primary/90 text-white rounded-full px-6">
                   Contatos
                 </Button>
@@ -75,7 +87,58 @@ export function NavBar() {
               </Link>
             </div>
           </div>
+
+          {/* Botão Mobile */}
+          <button 
+            className="md:hidden p-2 text-gray-700 hover:text-primary focus:outline-none"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Menu"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {isMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
         </div>
+
+        {/* Menu Mobile */}
+        {isMenuOpen && (
+          <div className="md:hidden py-4 border-t">
+            <nav className="flex flex-col space-y-4">
+              <Link 
+                className="text-gray-700 hover:text-primary transition-colors py-2" 
+                to="/sobre"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Sobre
+              </Link>
+              <Link 
+                className="text-gray-700 hover:text-primary transition-colors py-2" 
+                to="/pacotes"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Roteiros
+              </Link>
+              <Link 
+                className="text-gray-700 hover:text-primary transition-colors py-2" 
+                to="/#contato"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Contatos
+              </Link>
+              <Link 
+                className="text-gray-700 hover:text-primary transition-colors py-2" 
+                to="/admin"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Admin
+              </Link>
+            </nav>
+          </div>
+        )}
       </div>
     </header>
   );
