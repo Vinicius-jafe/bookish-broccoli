@@ -2,11 +2,19 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 const useRdStation = () => {
-  const location = useLocation();
+  // Tenta obter a localização, mas não falha se não estiver dentro de um Router
+  let pathname = '/';
+  try {
+    const location = useLocation();
+    pathname = location.pathname;
+  } catch (error) {
+    // Se não estiver dentro de um Router, usa o caminho atual da janela
+    pathname = window.location.pathname;
+  }
 
   useEffect(() => {
     // Verifica se não está na rota de admin
-    if (location.pathname !== '/admin') {
+    if (pathname !== '/admin') {
       // Função para carregar o script do RD Station
       const loadRdScript = () => {
         // Verifica se o script já foi carregado
@@ -35,7 +43,7 @@ const useRdStation = () => {
         loadRdScript();
       }
     }
-  }, [location.pathname]);
+  }, [pathname]);
 
   return null;
 };
