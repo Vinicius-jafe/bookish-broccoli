@@ -6,7 +6,7 @@ import Admin from './pages/Admin';
 import About from './pages/About';
 import ThankYou from './pages/ThankYou';
 import { Toaster } from './components/ui/sonner';
-import { useRdStation } from './hooks/useRdStation';
+import useRdStation from './hooks/useRdStation';
 import './index.css';
 
 function App() {
