@@ -26,6 +26,8 @@ import {
   upsertPackage,
   deletePackage,
   uploadPackageImages,
+  API_URL,
+  imageUrl,
 } from '../services/api';
 
 // --- UTILS ---
@@ -51,9 +53,7 @@ const makeSlug = (text) => {
  * @returns {string}
  */
 const getFullImageUrl = (path) => {
-  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
-  const cleanPath = path?.startsWith('/') ? path.substring(1) : path;
-  return cleanPath ? `${API_BASE_URL}/${cleanPath}` : '';
+  return imageUrl(path);
 };
 
 // --- COMPONENTE PACKAGEFORM OTIMIZADO ---
@@ -332,7 +332,7 @@ function BannerManagement() {
   const [isUploading, setIsUploading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
-  const BANNER_API_URL = `${process.env.REACT_APP_API_URL || 'http://localhost:4000/api'}/banner`;
+  const BANNER_API_URL = `${API_URL}/banner`;
 
   const fetchCurrentBanner = useCallback(async () => {
     try {
@@ -749,9 +749,8 @@ export function PackageDetail() {
   const [pkg, setPkg] = useState(null);
 
   const loadPackageBySlug = useCallback(async (currentSlug) => {
-    const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
     try {
-      const response = await fetch(`${API_BASE_URL}/packages/${currentSlug}`);
+      const response = await fetch(`${API_URL}/packages/${currentSlug}`);
       if (!response.ok) {
         throw new Error('Failed to fetch package');
       }

@@ -11,8 +11,7 @@ import {
 import RefreshIcon from '@mui/icons-material/Refresh';
 
 import logoImage from '../images/logo-final.jpg';
-
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
+import { API_URL, imageUrl } from '../services/api';
 
 // Styled Component para o Container principal do banner
 const BannerContainer = styled('div')(({ theme }) => ({
@@ -118,7 +117,7 @@ export default function Banner() {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${API_BASE_URL}/banner`);
+      const response = await fetch(`${API_URL}/banner`);
 
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
@@ -135,12 +134,10 @@ export default function Banner() {
       }
 
       if (data.success && data.imageUrl) {
-        const imageUrl = data.imageUrl.startsWith('http')
-          ? data.imageUrl
-          : `${API_BASE_URL}${data.imageUrl}`;
+        const img = imageUrl(data.imageUrl);
 
         setBanner({
-          imageUrl,
+          imageUrl: img,
           link: data.link || '#',
           alt: data.alt || 'Banner promocional',
         });

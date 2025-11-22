@@ -1,6 +1,7 @@
 // src/services/api.js
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
+const resolvedBase = process.env.REACT_APP_API_URL || (typeof window !== 'undefined' ? `${window.location.origin}/api` : 'http://localhost:4000/api');
+export const API_URL = resolvedBase;
 export const API_ORIGIN = API_URL.replace(/\/api$/, '');
 
 export function imageUrl(p) {
