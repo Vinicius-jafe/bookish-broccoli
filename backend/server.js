@@ -39,7 +39,9 @@ const allowedOrigins = [
   "http://177.153.60.151",              // IP sem porta (HTTP)
   "https://177.153.60.151",             // IP sem porta (HTTPS)
   "http://177.153.60.151:3000",         // Frontend no IP com porta 3000
-  "https://177.153.60.151:3000"         // Frontend HTTPS no IP com porta 3000
+  "https://177.153.60.151:3000",        // Frontend HTTPS no IP com porta 3000
+  "https://bellarendaeviagens.com.br",  // domínio público (HTTPS)
+  "https://www.bellarendaeviagens.com.br" // domínio com www (HTTPS)
 ];
 
 app.use(
